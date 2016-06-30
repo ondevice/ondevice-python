@@ -47,9 +47,12 @@ class Session:
 
 			elif msg._type == 'ping':
 				# send back a 'pong' message
-				print("Got ping: "+repr(msg))
+				#print("Got ping: "+repr(msg))
 				response = {'_type': 'pong', 'ts': msg.ts}
 				self.send(response)
+			elif msg._type == 'connect':
+				print("Got connection request: "+repr(msg))
+
 			else:
 				print("onMessage: unsupported type")
 				print("  ws={0}".format(ws))
