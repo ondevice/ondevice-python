@@ -8,7 +8,23 @@ def main(args):
         usage()
     else:
         cmd = args.pop(0)
-        commands.run(cmd, *args)
+        args, opts = parseArgs(args)
+        commands.run(cmd, *args, **opts)
+
+def parseArgs(inArgs):
+    # to my knowledge it's not possible to use the getopt module if the names of the arguments aren't known in advance
+    # please correct me if I'm wrong
+    args = []
+    opts = {}
+
+    for a in inArgs:
+        equalsPos = a.find('=')
+        if equalsPos >= 0:
+            opts[a[:equalsPos]] = a[equalsPos+1:]
+        else:
+            args.append(a)
+
+    return args, opts
 
 def usage(exitCode=1):
     commands.run('help')

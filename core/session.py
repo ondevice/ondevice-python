@@ -15,9 +15,10 @@ class Message:
 
 class Session:
 	""" Connects to the ondevice service """
-	def __init__(self, url="ws://localhost:8080/v0.10/serve/websocket"):
-		self._url = url
-		self._ws = websocket.WebSocketApp(url,
+	def __init__(self, auth, dev, url="ws://localhost:8080/v0.10/serve/websocket"):
+		# TODO implement proper URL handling
+		self._url = '{0}?auth={1}&id={2}'.format(url, auth, dev)
+		self._ws = websocket.WebSocketApp(self._url,
 			on_message=self._onMessage,
 			on_error=self._onError,
 			on_open=self._onOpen,
