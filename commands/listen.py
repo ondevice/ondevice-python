@@ -4,8 +4,8 @@ Starts the ondevice daemon in the foreground.
 
 from core.session import Session
 
-def run(__sentinel=None, auth=None, dev=None):
-    if __sentinel != None:
+def run(__sentinel__=None, auth=None, dev=None):
+    if __sentinel__ != None:
         raise Exception("Too many arguments")
     if auth == None:
         # TODO persist the user key
