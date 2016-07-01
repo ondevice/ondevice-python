@@ -1,8 +1,6 @@
-import json
 import modules
 import threading
 import traceback
-import websocket
 
 from core import sock
 from core import service
