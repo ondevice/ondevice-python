@@ -7,6 +7,6 @@ def getClient(name, dev, svcName, auth=None):
     mod = load(name)
     return mod.Client(dev, svcName, auth=auth)
 
-def getService(request):
+def getService(request, devId):
     mod = load(request.protocol)
-    return mod.Service(request)
+    return mod.Service(request, devId)

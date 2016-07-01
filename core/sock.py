@@ -31,6 +31,7 @@ class Socket:
     def _onClose(self, ws):
         print("onClose:")
         print("  ws={0}".format(ws))
+        print("  url={0}".format(self._url))
 
     def _onError(self, ws, error):
         print("onError:")
@@ -40,11 +41,12 @@ class Socket:
     def _onOpen(self, ws):
         print("onOpen:")
         print("  ws={0}".format(ws))
+        print("  url={0}".format(self._url))
+        if (hasattr(self, 'onOpen')):
+            self.onOpen(self)
 
     def run(self):
         self._ws.run_forever()
 
-    def send(self, msg):
-        data = json.dumps(msg)
-        print('>> {0}'.format(data))
+    def send(self, data):
         self._ws.send(data)

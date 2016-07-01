@@ -1,3 +1,4 @@
+import json
 import modules
 import threading
 import traceback
@@ -8,14 +9,17 @@ from core import service
 class Session(sock.Socket):
 	""" Connects to the ondevice service """
 	def __init__(self, auth, dev):
-		super().__init__('/serve', auth=auth, dev=dev)
+		super().__init__('/serve', auth=auth, id=dev)
 
 	def onMessage(self, msg):
 		try:
 			if not '_type' in msg:
 				raise Exception("Missing message type: {0}".format(msg))
 			elif msg._type == 'hello':
+				assert not hasattr(self, '_devId') and not hasattr(self, '_sid')
 				print("Got hello: "+repr(msg))
+				self._devId = msg.devId
+				self._sid = msg.sid
 				for name, svc in service.listServices().items():
 					self.send({'_type': 'announce', 'name': name, 'protocol': svc['module']})
 
@@ -26,8 +30,9 @@ class Session(sock.Socket):
 				self.send(response)
 			elif msg._type == 'connect':
 				print("Got connection request ({0} active threads): {1}".format(threading.active_count(), repr(msg)))
-				svc = modules.getService(msg)
+				svc = modules.getService(msg, self._devId)
 				t = threading.Thread(target=svc.run)
+				t.start()
 
 			else:
 				print("onMessage: unsupported type")
@@ -38,3 +43,8 @@ class Session(sock.Socket):
 			print("Msg: '{0}'".format(msg))
 			traceback.print_exc()
 			raise e
+
+	def send(self, msg):
+		data = json.dumps(msg)
+		print('>> {0}'.format(data))
+		self._ws.send(data)
