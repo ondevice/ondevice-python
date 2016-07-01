@@ -25,8 +25,7 @@ def run(module, dev, svcName=None, __sentinel__=None, auth=None):
     if svcName == None:
         svcName = module
 
-    mod = modules.load(module)
-    client = mod.Client(dev, svcName, auth=auth)
+    client = modules.getClient(module, dev, svcName, auth=auth)
     client.connect()
 
 def usage():

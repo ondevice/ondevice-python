@@ -1,4 +1,5 @@
 import json
+import modules
 import traceback
 import websocket
 
@@ -52,6 +53,8 @@ class Session:
 				self.send(response)
 			elif msg._type == 'connect':
 				print("Got connection request: "+repr(msg))
+				svc = modules.getService(msg)
+				svc.run()
 
 			else:
 				print("onMessage: unsupported type")
