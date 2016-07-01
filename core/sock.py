@@ -45,6 +45,9 @@ class Socket:
         if (hasattr(self, 'onOpen')):
             self.onOpen(self)
 
+    def close(self):
+        self._ws.close()
+
     def run(self):
         self._ws.run_forever()
 
