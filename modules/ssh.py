@@ -24,7 +24,7 @@ class Service:
 
     def run(self):
         req = self._request
-        self._resp = Response('broker', req.client, self._devId, self._gotData)
+        self._resp = Response('broker', req.tunnelId, self._devId, self._gotData)
         self._resp.onOpen = self._onOpen
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
