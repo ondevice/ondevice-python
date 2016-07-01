@@ -10,6 +10,11 @@ class Connection(sock.Socket):
     def _onMessage(self, ws, messageData):
         return self._cb(messageData)
 
+    def send(self, msg):
+        if (type(msg) == bytes):
+            self._ws.send(msg, 2) # OPCODE_BINARY
+        else:
+            self._ws.send(msg, 1) # OPCODE_TEXT
 
 class Response(sock.Socket):
     def __init__(self, broker, tunnelId, dev, cb=None):
@@ -18,3 +23,9 @@ class Response(sock.Socket):
 
     def _onMessage(self, ws, messageData):
         return self._cb(messageData)
+
+    def send(self, msg):
+        if (type(msg) == bytes):
+            self._ws.send(msg, 2) # OPCODE_BINARY
+        else:
+            self._ws.send(msg, 1) # OPCODE_TEXT
