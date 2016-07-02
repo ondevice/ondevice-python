@@ -1,4 +1,5 @@
 import json
+import logging
 import modules
 import threading
 import traceback
@@ -30,7 +31,7 @@ class Session(sock.Socket):
 				raise Exception("Missing message type: {0}".format(msg))
 			elif msg._type == 'hello':
 				assert not hasattr(self, '_devId') and not hasattr(self, '_sid')
-				print("Got hello: "+repr(msg))
+				logging.debug("Got hello: %s", repr(msg))
 				self._devId = msg.devId
 				self._sid = msg.sid
 				config.setDeviceId(msg.devId)
@@ -40,20 +41,21 @@ class Session(sock.Socket):
 
 			elif msg._type == 'ping':
 				# send back a 'pong' message
-				#print("Got ping: "+repr(msg))
+				logging.debug("Got ping: %s", repr(msg))
 				response = {'_type': 'pong', 'ts': msg.ts}
 				self.send(response)
 			elif msg._type == 'connect':
-				print("Got connection request ({0} active threads): {1}".format(threading.active_count(), repr(msg)))
+				logging.info("Got connection request (%d active threads)", threading.active_count())
+				logging.debug("  Message data: %s", repr(msg))
 				svc = modules.getService(msg, self._devId)
 				# TODO synchronize the both of them (e.g. only call startLocal after the remote connection is up)
 				svc.startRemote()
 				svc.startLocal()
 
 			else:
-				print("onMessage: unsupported type")
-				print("  ws={0}".format(ws))
-				print("  msg={0}".format(msg))
+				logging.error("onMessage: unsupported type")
+				logging.error("  ws=%s", ws)
+				logging.error("  msg=%s", msg)
 		except Exception as e:
 			# the websocket-client lib swallows the stack traces of exceptions
 			print("Msg: '{0}'".format(msg))
@@ -62,5 +64,5 @@ class Session(sock.Socket):
 
 	def send(self, msg):
 		data = json.dumps(msg)
-		print('>> {0}'.format(data))
+		logging.debug('>> %s', data)
 		self._ws.send(data)

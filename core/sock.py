@@ -1,4 +1,5 @@
 import json
+import logging
 import websocket
 
 class Message:
@@ -25,23 +26,21 @@ class Socket:
 
     def _onMessage(self, ws, messageText):
         msg = Message(json.loads(messageText))
-        print("<< {0}".format(messageText))
+        logging.debug("<< %s", messageText)
         self.onMessage(msg)
 
     def _onClose(self, ws):
-        print("onClose:")
-        print("  ws={0}".format(ws))
-        print("  url={0}".format(self._url))
+        logging.debug("onClose:")
+        logging.debug("  ws=%s", ws)
 
     def _onError(self, ws, error):
-        print("onError:")
-        print("  ws={0}".format(ws))
-        print("  error={0}".format(error))
+        logging.error("onError:")
+        logging.error("  ws=%s", ws)
+        logging.error("  error=%s", error)
 
     def _onOpen(self, ws):
-        print("onOpen:")
-        print("  ws={0}".format(ws))
-        print("  url={0}".format(self._url))
+        logging.debug("onOpen:")
+        logging.debug("  ws=%s", ws)
         if (hasattr(self, 'onOpen')):
             self.onOpen(self)
 
