@@ -31,8 +31,9 @@ class Session(sock.Socket):
 			elif msg._type == 'connect':
 				print("Got connection request ({0} active threads): {1}".format(threading.active_count(), repr(msg)))
 				svc = modules.getService(msg, self._devId)
-				t = threading.Thread(target=svc.run)
-				t.start()
+				# TODO synchronize the both of them (e.g. only call startLocal after the remote connection is up)
+				svc.startRemote()
+				svc.startLocal()
 
 			else:
 				print("onMessage: unsupported type")

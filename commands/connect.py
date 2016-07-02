@@ -26,7 +26,8 @@ def run(module, dev, svcName=None, __sentinel__=None, auth=None):
         svcName = module
 
     client = modules.getClient(module, dev, svcName, auth=auth)
-    client.connect()
+    client.startRemote()
+    client.runLocal() # don't run in a background thread
 
 def usage():
     return "<module> <dev> [svcName]", "Connects to a service on the specified device"

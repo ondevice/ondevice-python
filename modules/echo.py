@@ -1,25 +1,16 @@
 from core.connection import Connection, Response
+from modules import Endpoint
 
 import codecs
 import sys
 import threading
 
-class Client:
-    def __init__(self, dev, svcName, auth=None):
-        if auth == None:
-            raise Exception("Missing auth key!")
-        self._conn = Connection(dev, 'echo', svcName, auth=auth, cb=self._gotData)
-
-    def connect(self):
-        self._thread = threading.Thread(target=self._readStdin)
-        self._thread.start()
-        self._conn.run()
-
-    def _gotData(self, data):
+class Client(Endpoint):
+    def gotData(self, data):
         sys.stdout.buffer.write(b"> "+data)
         sys.stdout.flush()
 
-    def _readStdin(self):
+    def runLocal(self):
         while True:
             data = sys.stdin.buffer.readline()
             if data:
@@ -30,16 +21,13 @@ class Client:
                 self._conn.close()
                 return
 
-class Service:
+class Service(Endpoint):
     def __init__(self, request, devId):
-        print ("got incoming echo connection request: {0}".format(request))
         self._devId = devId
         self._request = request
 
-    def run(self):
-        req = self._request
-        self._resp = Response('broker', req.tunnelId, self._devId, self._gotData)
-        self._resp.run()
+    def runLocal(self):
+        pass
 
-    def _gotData(self, data):
-        self._resp.send(data)
+    def gotData(self, data):
+        self._conn.send(data)
