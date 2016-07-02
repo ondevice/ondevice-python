@@ -3,10 +3,12 @@ import os
 
 _config = None
 
+def getClientAuth(): return _getValue('client', 'auth')
 def getDeviceAuth(): return _getValue('device', 'auth')
 def getDeviceId(): return _getValue('device', 'id')
 
-def setDeviceAuth(auth): _setValue('device', 'auth', devId)
+def setClientAuth(auth): _setValue('client', 'auth', auth)
+def setDeviceAuth(auth): _setValue('device', 'auth', auth)
 def setDeviceId(devId): _setValue('device', 'id', devId)
 
 
@@ -25,9 +27,10 @@ def _getConfig():
     return _config
 
 def _getConfigPath(filename):
+    # TODO add proper support for other OSes
+    # TODO handle missing ~/.config dir
     homeDir = os.path.expanduser('~')
     configDir = os.path.join(homeDir, '.config/ondevice')
-    # TODO handle missing ~/.config dir
     if not os.path.isdir(configDir):
         os.mkdir(configDir)
 

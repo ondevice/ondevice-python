@@ -3,13 +3,26 @@ import modules
 import threading
 import traceback
 
-from core import sock
-from core import service
+from core import config, sock, service
 
 class Session(sock.Socket):
 	""" Connects to the ondevice service """
-	def __init__(self, auth, dev):
-		super().__init__('/serve', auth=auth, id=dev)
+	def __init__(self, auth):
+		devId = config.getDeviceId()
+		kwargs = {}
+		if devId != None:
+			kwargs['id'] = devId
+
+		if auth != None:
+			config.setDeviceAuth(auth)
+		else:
+			auth = config.getDeviceAuth()
+			if auth == None:
+				logging.error("Missing authentication key. You'll have to set it once using the 'auth=...' param")
+				sys.exit(1)
+
+		kwargs['auth'] = auth
+		super().__init__('/serve', **kwargs)
 
 	def onMessage(self, msg):
 		try:
@@ -20,6 +33,8 @@ class Session(sock.Socket):
 				print("Got hello: "+repr(msg))
 				self._devId = msg.devId
 				self._sid = msg.sid
+				config.setDeviceId(msg.devId)
+
 				for name, svc in service.listServices().items():
 					self.send({'_type': 'announce', 'name': name, 'protocol': svc['module']})
 

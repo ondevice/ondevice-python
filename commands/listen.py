@@ -2,17 +2,17 @@
 Starts the ondevice daemon in the foreground.
 """
 
+from core import config
 from core.session import Session
 
-def run(__sentinel__=None, auth=None, dev=None):
+import logging
+import sys
+
+def run(__sentinel__=None, auth=None):
     if __sentinel__ != None:
         raise Exception("Too many arguments")
-    if auth == None:
-        # TODO persist the user key
-        raise Exception("Missing authentication key!")
-    if dev == None:
-        raise Exception("Missing device ID")
-    session = Session(auth, dev)
+
+    session = Session(auth)
     session.run()
 
 def usage():
