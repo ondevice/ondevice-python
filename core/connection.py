@@ -1,11 +1,19 @@
-from core import sock
+from core import config, sock
 
 
 class Connection(sock.Socket):
     def __init__(self, dev, protocol, service, cb=None, auth=None):
-        super().__init__('/connect', auth=auth, dev=dev, protocol=protocol, service=service)
-        # TODO implement proper URL handling
         self._cb = cb
+
+        if auth != None:
+            config.setClientAuth(auth)
+        else:
+            auth = config.getClientAuth()
+            if auth == None:
+                logging.error("Missing authentication key. You'll have to set it once using the 'auth=...' param")
+                sys.exit(1)
+
+        super().__init__('/connect', auth=auth, dev=dev, protocol=protocol, service=service)
 
     def _onMessage(self, ws, messageData):
         return self._cb(messageData)

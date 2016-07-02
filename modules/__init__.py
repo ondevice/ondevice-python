@@ -20,9 +20,6 @@ def load(name):
     return getattr(mod, name)
 
 def getClient(name, devId, svcName, auth=None):
-    if auth == None:
-        raise Exception("Missing auth key!")
-
     mod = load(name)
     rc = mod.Client()
     rc._conn = Connection(devId, name, svcName, auth=auth, cb=rc.gotData)

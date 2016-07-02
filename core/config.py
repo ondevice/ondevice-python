@@ -20,7 +20,7 @@ def _getConfig():
         _config.read(configFile)
 
         # init sections
-        for s in ['device']:
+        for s in ['client', 'device']:
             if not _config.has_section(s):
                 _config.add_section(s)
 
@@ -47,6 +47,7 @@ def _setValue(section, key, value):
     cfg = _getConfig()
     cfg.set(section, key, value)
 
+    # TODO store a temporary file first (to avoid corrupting the config file in case of a full disk)
     cfgPath = _getConfigPath('ondevice.conf')
     with open(cfgPath, 'w') as f:
         cfg.write(f)
