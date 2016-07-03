@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 
+import logging
 import os, sys
 import commands
 
 def main(args):
+    logging.basicConfig(level=logging.DEBUG)
+
     if len(args) < 1:
         usage()
     else:
