@@ -17,8 +17,7 @@ class Client(Endpoint):
                 #print("sndData: {0}".format(codecs.encode(data, 'hex')))
                 self._conn.send(data)
             else:
-                #print("EOF (TODO: do sth about it)")
-                self._conn.close()
+                self._conn.sendEOF()
                 return
 
 class Service(Endpoint):

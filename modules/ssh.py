@@ -1,53 +1,51 @@
 from core.connection import Connection, Response
+from modules import Endpoint
 
 import codecs
+import logging
 import socket
+import subprocess
+import sys
 import threading
 
-class Client:
-    def __init__(self, dev, svcName, auth=None):
-        if auth == None:
-            raise Exception("Missing auth key!")
-        self._conn = Connection(dev, 'ssh', svcName, auth=auth, cb=self._gotData)
+class Client(Endpoint):
+    def gotData(self, data):
+        logging.debug("gotData: %s", repr(data))
+        sys.stdout.buffer.write(data)
+        sys.stdout.buffer.flush()
 
-    def connect(self):
-        self._conn.run()
+    def runLocal(self):
+        while True:
+            data = sys.stdin.buffer.readline()
+            if data:
+                logging.debug("sndData: %s", repr(data))
+                self._conn.send(data)
+            else:
+                logging.info("Local EOF, closing connection")
+                self._conn.sendEOF()
+                return
 
-    def _gotData(self, ws, data):
-        print("-- got data: {0}".format(data))
-
-class Service:
+class Service(Endpoint):
     def __init__(self, request, devId):
-        print ("got incoming SSH connection request: {0}".format(request))
         self._devId = devId
         self._request = request
 
-    def run(self):
-        req = self._request
-        self._resp = Response('broker', req.tunnelId, self._devId, self._gotData)
-        self._resp.onOpen = self._onOpen
+    def runLocal(self):
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        self._resp.run()
-
-    def _gotData(self, ws, data):
-        print("gotData: {0}".format(codecs.encode(data, 'hex')))
-        self._sock.write(data)
-
-    def _onOpen(self, ws):
         # TODO make me configurable
         # TODO use a timeout; raise an exception on error
         self._sock.connect(('localhost', 22))
 
-        self._thread = threading.Thread(target=self._readSocket)
-        self._thread.start()
-
-    def _readSocket(self):
         while True:
             data = self._sock.recv(8192)
             if data:
-                print("sndData: {0}".format(codecs.encode(data, 'hex')))
-                self._resp.send(data)
+                logging.debug("sndData: %s", repr(data))
+                self._conn.send(data)
             else:
-                print("eof!?!")
+                self._conn.sendEOF()
                 return
+
+    def gotData(self, data):
+        logging.debug("gotData: %s", repr(data))
+        self._sock.send(data)
+        self._sock.flush()
