@@ -10,6 +10,8 @@ class Endpoint:
         self._localThread = Thread(target = self.runLocal)
         self._localThread.start()
 
+    def gotData(self, data):
+        raise Exception("This module doesn't impolement the 'gotData' endpoint!?!")
 
     def runRemote(self):
         self._conn.run()
@@ -19,18 +21,28 @@ def load(name):
     mod = __import__('modules.{0}'.format(name))
     return getattr(mod, name)
 
-def loadClass(name, className):
+def loadClient(name):
     modName, suffix = (name.split(':')+[None])[:2]
+    className = 'Client'
+
     if suffix != None:
-        className = '{0}_{1}'.format(className, suffix)
+        className = '{0}_{1}'.format('Client', suffix)
     mod = load(modName)
 
     if not hasattr(mod, className):
         raise Exception("Module '{0}' doesn't have a '{1}' endpoint".format(modName, suffix))
-    return getattr(mod, className)
+    rc = getattr(mod, className)()
+    rc._params = {'protocol': modName, 'endpoint': suffix }
+    return rc, modName
+
 
 def getClient(name, devId, svcName, auth=None):
-    rc = loadClass(name, 'Client')()
+    rc, name  = loadClient(name)
+
+    rc._params.update({ 'devId': devId, 'svcName': svcName })
+    if auth != None:
+        rc._params['auth'] = auth
+
     rc._conn = Connection(devId, name, svcName, auth=auth, cb=rc.gotData)
     return rc
 

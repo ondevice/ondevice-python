@@ -9,6 +9,27 @@ import sys
 import threading
 
 class Client(Endpoint):
+    """ Endpoint stub that simply invokes 'ssh' with the ProxyCommand set to
+    'onclient connect ssh:tunnel' """
+
+    def runLocal(self):
+        # TODO find a less hacky way to do this
+        params = self._params
+        devId = params['devId']
+        protocol = params['protocol']
+
+        # TODO use the dynamic module name
+        proxyCmd = [ sys.argv[0], 'connect', '{0}:tunnel'.format(protocol), devId ]
+        if 'auth' in params:
+            proxyCmd.append('auth={0}'.format(params['auth']))
+
+        ssh = subprocess.Popen(['ssh', '-o', 'ProxyCommand={0}'.format(' '.join(proxyCmd)), 'ondevice:{0}'.format(devId)], stdin=None, stdout=None, stderr=None)
+        ssh.wait()
+
+    def startRemote(self):
+        pass # we don't need a remote connection; Client_tunnel does that for us
+
+class Client_tunnel(Endpoint):
     def gotData(self, data):
         logging.debug("gotData: %s", repr(data))
         sys.stdout.buffer.write(data)
