@@ -31,7 +31,7 @@ class Session(sock.Socket):
 			if not '_type' in msg:
 				raise Exception("Missing message type: {0}".format(msg))
 			elif msg._type == 'hello':
-				assert not hasattr(self, '_devId') and not hasattr(self, '_sid')
+				assert not self._connectionSucceeded
 				logging.debug("Got hello: %s", repr(msg))
 				self._devId = msg.devId
 				self._sid = msg.sid
@@ -40,6 +40,7 @@ class Session(sock.Socket):
 				for name, svc in service.listServices().items():
 					self.send({'_type': 'announce', 'name': name, 'protocol': svc['module']})
 
+				self._connectionSucceeded = True
 			elif msg._type == 'ping':
 				# send back a 'pong' message
 				logging.debug("Got ping: %s", repr(msg))
@@ -49,7 +50,7 @@ class Session(sock.Socket):
 				logging.info("Got connection request (%d active threads)", threading.active_count())
 				logging.debug("  Message data: %s", repr(msg))
 				svc = modules.getService(msg, self._devId)
-				# TODO synchronize the both of them (e.g. only call startLocal after the remote connection is up)
+
 				svc.startRemote()
 				svc.startLocal()
 
@@ -62,6 +63,11 @@ class Session(sock.Socket):
 			print("Msg: '{0}'".format(msg))
 			traceback.print_exc()
 			raise e
+
+	def run(self):
+		self._connectionSucceeded = False
+		super().run()
+		return self._connectionSucceeded
 
 	def send(self, msg):
 		data = json.dumps(msg)
