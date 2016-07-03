@@ -3,6 +3,7 @@ import logging
 import modules
 import threading
 import traceback
+import sys
 
 from core import config, sock, service
 

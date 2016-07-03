@@ -2,6 +2,7 @@ from core import config, sock
 
 import logging
 import threading
+import sys
 
 class TunnelSocket(sock.Socket):
     """ Base class for Connection and Response """
