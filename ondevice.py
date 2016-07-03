@@ -5,7 +5,7 @@ import os, sys
 import commands
 
 def main(args):
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
 
     if len(args) < 1:
         usage()
