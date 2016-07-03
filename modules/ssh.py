@@ -16,7 +16,10 @@ class Client(Endpoint):
 
     def runLocal(self):
         while True:
-            data = sys.stdin.buffer.readline()
+            # read1() only invokes the underlying read function only once (and
+            # in contrast to read() returns as soon as there's data available,
+            # not just when 8192 bytes have actually been read)
+            data = sys.stdin.buffer.read1(8192)
             if data:
                 logging.debug("sndData: %s", repr(data))
                 self._conn.send(data)
@@ -48,4 +51,3 @@ class Service(Endpoint):
     def gotData(self, data):
         logging.debug("gotData: %s", repr(data))
         self._sock.send(data)
-        self._sock.flush()
