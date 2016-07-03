@@ -19,9 +19,18 @@ def load(name):
     mod = __import__('modules.{0}'.format(name))
     return getattr(mod, name)
 
+def loadClass(name, className):
+    modName, suffix = (name.split(':')+[None])[:2]
+    if suffix != None:
+        className = '{0}_{1}'.format(className, suffix)
+    mod = load(modName)
+
+    if not hasattr(mod, className):
+        raise Exception("Module '{0}' doesn't have a '{1}' endpoint".format(modName, suffix))
+    return getattr(mod, className)
+
 def getClient(name, devId, svcName, auth=None):
-    mod = load(name)
-    rc = mod.Client()
+    rc = loadClass(name, 'Client')()
     rc._conn = Connection(devId, name, svcName, auth=auth, cb=rc.gotData)
     return rc
 
