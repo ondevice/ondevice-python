@@ -14,14 +14,16 @@ def run(__sentinel__=None, auth=None):
         raise Exception("Too many arguments")
 
     session = Session(auth)
+    retryDelay = 10
+
     while (True):
         # TODO think about moving this into Session
         if session.run() == True:
-            retryDelay = 5
-        else:
-            retryDelay = min(900, retryDelay*1.5)
+            retryDelay = 10
+
         logging.info("Lost connection, retrying in %ds", retryDelay)
         time.sleep(retryDelay)
+        retryDelay = min(900, retryDelay*1.5)
 
 def usage():
     return "<auth=accountKey> [dev=devId]", "Starts the ondevice daemon in the foreground"
