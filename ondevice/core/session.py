@@ -53,10 +53,15 @@ class Session(sock.Socket):
 
 				svc.startRemote()
 				svc.startLocal()
+			elif msg._type == 'error':
+				errType = 'Error'
+				if msg.code == 400: errType = 'Bad Request'
+				elif msg.code == 403: errType = 'Forbidden'
+				elif msg.code == 404: errType = 'Not Found'
 
+				logging.error("%s: %s", errType, msg.msg)
 			else:
 				logging.error("onMessage: unsupported type")
-				logging.error("  ws=%s", ws)
 				logging.error("  msg=%s", msg)
 		except Exception as e:
 			# the websocket-client lib swallows the stack traces of exceptions
