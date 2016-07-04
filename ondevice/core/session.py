@@ -1,11 +1,11 @@
+from ondevice.core import config, sock, service
+from ondevice import modules
+
 import json
 import logging
-import modules
 import threading
 import traceback
 import sys
-
-from core import config, sock, service
 
 class Session(sock.Socket):
 	""" Connects to the ondevice service """
@@ -47,7 +47,7 @@ class Session(sock.Socket):
 				response = {'_type': 'pong', 'ts': msg.ts}
 				self.send(response)
 			elif msg._type == 'connect':
-				logging.info("Got connection request to '%s' by user %s (ip: %s)", msg.service, msg.clientUser, msg.clientIp)
+				logging.info("Got '%s' request by user %s (ip: %s)", msg.service, msg.clientUser, msg.clientIp)
 				# TODO actually use the service names instead of just the protocol
 				svc = modules.getService(msg, self._devId)
 

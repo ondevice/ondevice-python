@@ -7,7 +7,8 @@ Examples:
     {cmd} help help     shows this message
 """
 
-import commands
+from ondevice import commands
+
 import sys
 
 def run(cmdName=None):

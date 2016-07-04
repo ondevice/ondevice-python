@@ -2,8 +2,8 @@
 Starts the ondevice daemon in the foreground.
 """
 
-from core import config
-from core.session import Session
+from ondevice.core import config
+from ondevice.core.session import Session
 
 import logging
 import sys

@@ -6,8 +6,8 @@ def listCommands():
             yield modname
 
 def load(cmdName):
-    mod = __import__('commands.{0}'.format(cmdName))
-    return getattr(mod, cmdName)
+    ondevice = __import__('ondevice.commands.{0}'.format(cmdName))
+    return getattr(ondevice.commands, cmdName)
 
 def run(cmdName, *args, **opts):
     cmd = load(cmdName)

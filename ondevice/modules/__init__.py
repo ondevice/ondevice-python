@@ -1,4 +1,5 @@
-from core.connection import Connection, Response
+from ondevice.core.connection import Connection, Response
+
 from threading import Thread
 
 class Endpoint:
@@ -18,8 +19,8 @@ class Endpoint:
 
 
 def load(name):
-    mod = __import__('modules.{0}'.format(name))
-    return getattr(mod, name)
+    ondevice = __import__('ondevice.modules.{0}'.format(name))
+    return getattr(ondevice.modules, name)
 
 def loadClient(name):
     modName, suffix = (name.split(':')+[None])[:2]

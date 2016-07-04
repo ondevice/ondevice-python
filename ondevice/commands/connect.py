@@ -15,9 +15,8 @@ Examples:
     {cmd} ssh someDevice otherSsh - connect to the 'otherSsh' service
 """
 
-import modules
-
-from core.session import Session
+from ondevice import modules
+from ondevice.core.session import Session
 
 def run(module, dev, svcName=None, __sentinel__=None, auth=None):
     if __sentinel__ != None:

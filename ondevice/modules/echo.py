@@ -1,5 +1,5 @@
-from core.connection import Connection, Response
-from modules import Endpoint
+from ondevice.core.connection import Connection, Response
+from ondevice.modules import Endpoint
 
 import codecs
 import sys

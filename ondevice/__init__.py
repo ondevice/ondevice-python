@@ -2,7 +2,11 @@
 
 import logging
 import os, sys
-import commands
+
+from ondevice import commands
+
+def _main():
+    main(sys.argv[1:])
 
 def main(args):
     logging.basicConfig(level=logging.INFO)
@@ -34,4 +38,5 @@ def usage(exitCode=1):
     sys.exit(exitCode)
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    _main()
+

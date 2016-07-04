@@ -1,4 +1,4 @@
-from core import config, sock
+from ondevice.core import config, sock
 
 import logging
 import threading
