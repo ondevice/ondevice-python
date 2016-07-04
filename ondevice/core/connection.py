@@ -9,7 +9,7 @@ class TunnelSocket(sock.Socket):
     def __init__(self, *args, **kwargs):
         self._lock = threading.Lock()
         self._lock.acquire() # lock initially (will be released once the server confirms the connection)
-        super().__init__(*args, **kwargs)
+        sock.Socket.__init__(self, *args, **kwargs)
 
     def _onMessage(self, ws, messageData):
         colonPos = messageData.find(b':')
@@ -75,12 +75,12 @@ class Connection(TunnelSocket):
                 logging.error("Missing authentication key. You'll have to set it once using the 'auth=...' param")
                 sys.exit(1)
 
-        super().__init__('/connect', auth=auth, dev=dev, protocol=protocol, service=service)
+        TunnelSocket.__init__(self, '/connect', auth=auth, dev=dev, protocol=protocol, service=service)
 
 
 class Response(TunnelSocket):
     def __init__(self, broker, tunnelId, dev, cb=None):
-        super().__init__('/accept', tunnel=tunnelId, dev=dev, baseUrl=broker)
+        TunnelSocket.__init__(self, '/accept', tunnel=tunnelId, dev=dev, baseUrl=broker)
         self._cb = cb
 
     def onEOF(self):

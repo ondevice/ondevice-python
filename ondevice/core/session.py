@@ -24,7 +24,7 @@ class Session(sock.Socket):
 				sys.exit(1)
 
 		kwargs['auth'] = auth
-		super().__init__('/serve', **kwargs)
+		sock.Socket.__init__(self, '/serve', **kwargs)
 
 	def onMessage(self, msg):
 		try:
@@ -71,7 +71,7 @@ class Session(sock.Socket):
 
 	def run(self):
 		self._connectionSucceeded = False
-		super().run()
+		sock.Socket.run(self)
 		return self._connectionSucceeded
 
 	def send(self, msg):
