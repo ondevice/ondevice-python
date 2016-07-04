@@ -12,11 +12,12 @@ class Message:
     def __repr__(self): return "Message({0})".format(self._data)
 
 class Socket:
-    def __init__(self, endpoint, **params):
+    def __init__(self, endpoint, baseUrl=None, **params):
         # TODO make base URL configurable
         # TODO do proper URL handling
-        baseUrl = 'wss://api.ondevice.io/v0.10'
-#        baseUrl = 'ws://localhost:8080/v0.10'
+        if baseUrl == None:
+            baseUrl = 'wss://api.ondevice.io/v1.0'
+#            baseUrl = 'ws://localhost:8080/v1.0'
         paramStr = '&'.join('{0}={1}'.format(k,v) for k, v in params.items())
         self._url = '{baseUrl}{endpoint}/websocket?{paramStr}'.format(**locals())
         self._ws = websocket.WebSocketApp(self._url,

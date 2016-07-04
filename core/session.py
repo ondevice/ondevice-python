@@ -32,7 +32,7 @@ class Session(sock.Socket):
 				raise Exception("Missing message type: {0}".format(msg))
 			elif msg._type == 'hello':
 				assert not self._connectionSucceeded
-				logging.debug("Got hello: %s", repr(msg))
+				logging.info("Connection established, online as '%s'", msg.name)
 				self._devId = msg.devId
 				self._sid = msg.sid
 				config.setDeviceId(msg.devId)
@@ -47,8 +47,8 @@ class Session(sock.Socket):
 				response = {'_type': 'pong', 'ts': msg.ts}
 				self.send(response)
 			elif msg._type == 'connect':
-				logging.info("Got connection request (%d active threads)", threading.active_count())
-				logging.debug("  Message data: %s", repr(msg))
+				logging.info("Got connection request to '%s' by user %s (ip: %s)", msg.service, msg.clientUser, msg.clientIp)
+				# TODO actually use the service names instead of just the protocol
 				svc = modules.getService(msg, self._devId)
 
 				svc.startRemote()
