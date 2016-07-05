@@ -33,6 +33,7 @@ class Session(sock.Socket):
 			elif msg._type == 'hello':
 				assert not self._connectionSucceeded
 				logging.info("Connection established, online as '%s'", msg.name)
+				config.setDeviceName(msg.name)
 				self._devId = msg.devId
 				self._sid = msg.sid
 				config.setDeviceId(msg.devId)

@@ -14,6 +14,7 @@ def getDeviceId(): return _getValue('device', 'id')
 def setClientAuth(auth): _setValue('client', 'auth', auth)
 def setDeviceAuth(auth): _setValue('device', 'auth', auth)
 def setDeviceId(devId): _setValue('device', 'id', devId)
+def setDeviceName(slug): _setValue('device', 'name', slug)
 
 
 def _getConfig():
