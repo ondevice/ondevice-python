@@ -1,5 +1,6 @@
 import json
 import logging
+import ssl
 import websocket
 
 class Message:
@@ -20,11 +21,23 @@ class Socket:
 #            baseUrl = 'ws://localhost:8080/v1.0'
         paramStr = '&'.join('{0}={1}'.format(k,v) for k, v in params.items())
         self._url = '{baseUrl}{endpoint}/websocket?{paramStr}'.format(**locals())
+
         self._ws = websocket.WebSocketApp(self._url,
             on_message=self._onMessage,
             on_error=self._onError,
             on_open=self._onOpen,
             on_close=self._onClose)
+
+    def _getSslVersion(self):
+        """ In python2.6 the protocol setting PROTOCOL_SSLv23 doesn't include TLS.
+        This method works around that issue by only selecting PROTOCOL_SSLv23 if
+        PROTOCOL_TLSv1_1 is available """
+        if hasattr(ssl, 'PROTOCOL_TLSv1_1'):
+            # Python >= 2.7.9 + openssl >= 1.0.1 -> SSLv23 is safe
+            return ssl.PROTOCOL_SSLv23
+        else:
+            # there's no TLSv1.1+ support -> force TLSv1.0
+            return ssl.PROTOCOL_TLSv1
 
     def _onMessage(self, ws, messageText):
         msg = Message(json.loads(messageText))
@@ -50,7 +63,10 @@ class Socket:
         self._ws.close()
 
     def run(self):
-        self._ws.run_forever()
+        # Python2.6 fix (its ssl module won't try TLSv1 unless we explicitly tell it to)
+        sslopt = {'ssl_version': self._getSslVersion()}
+
+        self._ws.run_forever(sslopt=sslopt)
 
     def send(self, data):
         self._ws.send(data)
