@@ -32,15 +32,17 @@ class Client(Endpoint):
 class Client_tunnel(Endpoint):
     def gotData(self, data):
         logging.debug("gotData: %s", repr(data))
-        sys.stdout.buffer.write(data)
-        sys.stdout.buffer.flush()
+        stream = self.getConsoleBuffer(sys.stdout)
+        stream.write(data)
+        stream.flush()
 
     def runLocal(self):
         while True:
             # read1() only invokes the underlying read function only once (and
             # in contrast to read() returns as soon as there's data available,
             # not just when 8192 bytes have actually been read)
-            data = sys.stdin.buffer.read1(8192)
+            stream = self.getConsoleBuffer(sys.stdin)
+            data = stream.read1(8192)
             if data:
                 logging.debug("sndData: %s", repr(data))
                 self._conn.send(data)

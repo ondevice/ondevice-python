@@ -1,8 +1,19 @@
 from ondevice.core.connection import Connection, Response
 
+import io
 from threading import Thread
 
 class Endpoint:
+    def getConsoleBuffer(self, stream):
+        """ Compatibilty code for py2/3 (returns stream.buffer in py3 and io.BufferedReader/BufferedWriter in py2) """
+        if hasattr(stream, 'buffer'):
+            return stream.buffer # py3
+        else:
+            rc = io.open(stream.fileno()) # py2
+            if hasattr(rc, 'read'):
+                rc.read1 = rc.read
+            return rc
+
     def startRemote(self):
         self._remoteThread = Thread(target = self.runRemote)
         self._remoteThread.start()

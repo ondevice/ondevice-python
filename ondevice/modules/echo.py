@@ -2,17 +2,20 @@ from ondevice.core.connection import Connection, Response
 from ondevice.modules import Endpoint
 
 import codecs
+import six
 import sys
 import threading
 
 class Client(Endpoint):
     def gotData(self, data):
-        sys.stdout.buffer.write(b"> "+data)
-        sys.stdout.flush()
+        stream = self.getConsoleBuffer(sys.stdout)
+        stream.write(b"> "+data)
+        stream.flush()
 
     def runLocal(self):
+        stream = self.getConsoleBuffer(sys.stdin)
         while True:
-            data = sys.stdin.buffer.readline()
+            data = stream.readline()
             if data:
                 #print("sndData: {0}".format(codecs.encode(data, 'hex')))
                 self._conn.send(data)
