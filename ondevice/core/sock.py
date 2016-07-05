@@ -1,3 +1,5 @@
+import ondevice
+
 import json
 import logging
 import ssl
@@ -19,6 +21,10 @@ class Socket:
         if baseUrl == None:
             baseUrl = 'wss://api.ondevice.io/v1.0'
 #            baseUrl = 'ws://localhost:8080/v1.0'
+
+        if 'version' not in params:
+            params['version'] = ondevice.getVersion()
+
         paramStr = '&'.join('{0}={1}'.format(k,v) for k, v in params.items())
         self._url = '{baseUrl}{endpoint}/websocket?{paramStr}'.format(**locals())
 

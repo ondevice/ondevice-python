@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import logging
+import pkg_resources
 import os, sys
 
 from ondevice import commands
@@ -17,6 +18,11 @@ def main(args):
         cmd = args.pop(0)
         args, opts = parseArgs(args)
         commands.run(cmd, *args, **opts)
+
+def getVersion():
+    pkgInfo = pkg_resources.require("ondevice")[0]
+    return pkgInfo.version
+
 
 def parseArgs(inArgs):
     # to my knowledge it's not possible to use the getopt module if the names of the arguments aren't known in advance
@@ -39,4 +45,3 @@ def usage(exitCode=1):
 
 if __name__ == '__main__':
     _main()
-
