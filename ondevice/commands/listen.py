@@ -13,11 +13,12 @@ def run(__sentinel__=None, auth=None):
     if __sentinel__ != None:
         raise Exception("Too many arguments")
 
-    session = Session(auth)
     retryDelay = 10
 
     while (True):
-        # TODO think about moving this into Session
+        # TODO think about moving the loop into Session
+        # TODO right now it's impossible to reuse Session objects (since the URL's set in the constructor but the devId might change afterwards)
+        session = Session(auth)
         if session.run() == True:
             retryDelay = 10
 
