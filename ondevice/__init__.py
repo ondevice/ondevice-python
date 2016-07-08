@@ -16,6 +16,10 @@ def main(args):
         usage()
     else:
         cmd = args.pop(0)
+        if cmd.startswith(':'):
+            args.insert(0, cmd[1:])
+            cmd = 'connect'
+
         args, opts = parseArgs(args)
         commands.run(cmd, *args, **opts)
 
