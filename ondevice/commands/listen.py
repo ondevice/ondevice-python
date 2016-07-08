@@ -27,4 +27,4 @@ def run(__sentinel__=None, auth=None):
         retryDelay = min(900, retryDelay*1.5)
 
 def usage():
-    return "<auth=accountKey> [dev=devId]", "Starts the ondevice daemon in the foreground"
+    return "[dev=devId]", "Starts the ondevice daemon in the foreground"

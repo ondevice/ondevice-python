@@ -20,7 +20,7 @@ class Session(sock.Socket):
 		else:
 			auth = config.getDeviceAuth()
 			if auth == None:
-				logging.error("Missing authentication key. You'll have to set it once using the 'auth=...' param")
+				logging.error("Missing authentication key. You'll have to set it once using the --auth=... option")
 				sys.exit(1)
 
 		kwargs['auth'] = auth

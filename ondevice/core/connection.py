@@ -72,7 +72,7 @@ class Connection(TunnelSocket):
         else:
             auth = config.getClientAuth()
             if auth == None:
-                logging.error("Missing authentication key. You'll have to set it once using the 'auth=...' param")
+                logging.error("Missing authentication key. You'll have to set it once using the --auth=... option")
                 sys.exit(1)
 
         TunnelSocket.__init__(self, '/connect', auth=auth, dev=dev, protocol=protocol, service=service)
