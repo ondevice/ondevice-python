@@ -1,12 +1,12 @@
 from ondevice.core.connection import Connection, Response
-from ondevice.modules import Endpoint
+from ondevice.modules import TunnelClient, TunnelService
 
 import codecs
 import six
 import sys
 import threading
 
-class Client(Endpoint):
+class Client(TunnelClient):
     def gotData(self, data):
         stream = self.getConsoleBuffer(sys.stdout)
         stream.write(b"> "+data)
@@ -23,11 +23,7 @@ class Client(Endpoint):
                 self._conn.sendEOF()
                 return
 
-class Service(Endpoint):
-    def __init__(self, request, devId):
-        self._devId = devId
-        self._request = request
-
+class Service(TunnelService):
     def runLocal(self):
         pass
 

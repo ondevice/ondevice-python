@@ -12,19 +12,14 @@ Arguments:
 Examples:
     {cmd} connect ssh someDevice - connect to the 'ssh' service of 'someDevice'
     {cmd} ssh someDevice - same as the above (i.e. omitted 'connect')
-    {cmd} ssh someDevice otherSsh - connect to the 'otherSsh' service
+    {cmd} ssh@otherSsh someDevice - connect to the 'otherSsh' service using ssh
 """
 
 from ondevice import modules
 from ondevice.core.session import Session
 
-def run(module, dev, svcName=None, __sentinel__=None, auth=None):
-    if __sentinel__ != None:
-        raise Exception("Too many arguments")
-    if svcName == None:
-        svcName = module
-
-    client = modules.getClient(module, dev, svcName, auth=auth)
+def run(module, dev, *args, auth=None):
+    client = modules.loadClient(dev, module, *args, auth=auth)
     client.startRemote()
     client.runLocal() # don't run in a background thread
 

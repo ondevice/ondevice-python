@@ -1,6 +1,7 @@
 from ondevice.core.connection import Connection, Response
 
 import io
+import re
 from threading import Thread
 
 class Endpoint:
@@ -11,7 +12,7 @@ class Endpoint:
         else:
             rc = io.open(stream.fileno()) # py2
             if hasattr(rc, 'read'):
-                rc.read1 = rc.read
+                rc.read1 = rc.read # this is hacky but it seems to work
             return rc
 
     def startRemote(self):
@@ -28,13 +29,33 @@ class Endpoint:
     def runRemote(self):
         self._conn.run()
 
+class TunnelClient(Endpoint):
+    def __init__(self, devId, protocol, svcName, *args, auth=None):
+        if len(args) > 0:
+            raise Exception("Too many arguments!")
+
+        self._params = { 'devId': devId, 'svcName': svcName }
+        if auth != None:
+            self._params['auth'] = auth
+
+        self._conn = Connection(devId, protocol, svcName, auth=auth, cb=self.gotData)
+
+class TunnelService(Endpoint):
+    def __init__(self, brokerUrl, tunnelId, devId):
+        self._conn = Response(brokerUrl, tunnelId, devId, cb=self.gotData)
+
 
 def load(name):
     ondevice = __import__('ondevice.modules.{0}'.format(name))
     return getattr(ondevice.modules, name)
 
-def loadClient(name):
-    modName, suffix = (name.split(':')+[None])[:2]
+def loadClient(devId, protocolStr, *args, auth=None):
+    modName, suffix, svcName = _parseProtocolString(protocolStr)
+    if svcName == None:
+        svcName = modName
+    return loadClient2(devId, modName, suffix, svcName, *args, auth=auth)
+
+def loadClient2(devId, modName, suffix, svcName, *args, auth=None):
     className = 'Client'
 
     if suffix != None:
@@ -43,23 +64,17 @@ def loadClient(name):
 
     if not hasattr(mod, className):
         raise Exception("Module '{0}' doesn't have a '{1}' endpoint".format(modName, suffix))
-    rc = getattr(mod, className)()
-    rc._params = {'protocol': modName, 'endpoint': suffix }
-    return rc, modName
-
-
-def getClient(name, devId, svcName, auth=None):
-    rc, name  = loadClient(name)
-
-    rc._params.update({ 'devId': devId, 'svcName': svcName })
-    if auth != None:
-        rc._params['auth'] = auth
-
-    rc._conn = Connection(devId, name, svcName, auth=auth, cb=rc.gotData)
+    clazz = getattr(mod, className)
+    rc = clazz(devId, modName, svcName, *args, auth=auth)
+    rc._params.update({'protocol': modName, 'endpoint': suffix })
     return rc
 
 def getService(req, devId):
     mod = load(req.protocol)
-    rc = mod.Service(req, devId)
-    rc._conn = Response(req.broker, req.tunnelId, devId, cb=rc.gotData)
+    rc = mod.Service(req.broker, req.tunnelId, devId)
     return rc
+
+def _parseProtocolString(protocolStr):
+    """ Takes a protocol string (in the format `moduleName[:suffix][@svcName]`)
+    and returns its parts (or None for each missing part) """
+    return re.match('([^:@]+):?([^@]+)?@?(.+)?', protocolStr).groups()

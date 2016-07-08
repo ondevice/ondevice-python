@@ -1,5 +1,19 @@
+"""
+Tunneled SSH client module
+
+Usage:
+- {cmd} connect ssh <deviceName> [ssh-arguments...]
+- {cmd} :ssh <deviceName> [ssh-arguments...] - shorthand for the above
+
+
+Examples:
+- {cmd} :ssh@foo ondevice/test -l root
+  Login to the SSH service named `foo` on `ondevice`'s test device as user `root`
+"""
+
+
 from ondevice.core.connection import Connection, Response
-from ondevice.modules import Endpoint
+from ondevice.modules import TunnelClient, TunnelService
 
 import codecs
 import logging
@@ -8,28 +22,31 @@ import subprocess
 import sys
 import threading
 
-class Client(Endpoint):
+class Client(TunnelClient):
     """ Endpoint stub that simply invokes 'ssh' with the ProxyCommand set to
     'onclient connect ssh:tunnel' """
+    def __init__(self, devId, protocol, svcName, *args, auth=None):
+        TunnelClient.__init__(self, devId, protocol, svcName, auth=None)
+        self._sshArgs = list(args)
 
     def runLocal(self):
-        # TODO find a less hacky way to do this
         params = self._params
         devId = params['devId']
         protocol = params['protocol']
+        svcName = params['svcName']
 
         # TODO use the dynamic module name
-        proxyCmd = [ sys.argv[0], 'connect', '{0}:tunnel'.format(protocol), devId ]
+        proxyCmd = [ sys.argv[0], 'connect', '{0}:tunnel@{1}'.format(protocol, svcName), devId ]
         if 'auth' in params:
             proxyCmd.append('auth={0}'.format(params['auth']))
 
-        ssh = subprocess.Popen(['ssh', '-o', 'ProxyCommand={0}'.format(' '.join(proxyCmd)), 'ondevice:{0}'.format(devId)], stdin=None, stdout=None, stderr=None)
+        ssh = subprocess.Popen(['ssh', '-o', 'ProxyCommand={0}'.format(' '.join(proxyCmd))]+self._sshArgs+['ondevice:{0}'.format(devId)], stdin=None, stdout=None, stderr=None)
         ssh.wait()
 
     def startRemote(self):
         pass # we don't need a remote connection; Client_tunnel does that for us
 
-class Client_tunnel(Endpoint):
+class Client_tunnel(TunnelClient):
     def gotData(self, data):
         logging.debug("gotData: %s", repr(data))
         stream = self.getConsoleBuffer(sys.stdout)
@@ -51,11 +68,7 @@ class Client_tunnel(Endpoint):
                 self._conn.sendEOF()
                 return
 
-class Service(Endpoint):
-    def __init__(self, request, devId):
-        self._devId = devId
-        self._request = request
-
+class Service(TunnelService):
     def runLocal(self):
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # TODO make me configurable
