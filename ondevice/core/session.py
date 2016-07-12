@@ -39,7 +39,7 @@ class Session(sock.Socket):
 				config.setDeviceId(msg.devId)
 
 				for name, svc in service.listServices().items():
-					self.send({'_type': 'announce', 'name': name, 'protocol': svc['module']})
+					self.send({'_type': 'announce', 'name': name, 'protocol': svc['protocol']})
 
 				self._connectionSucceeded = True
 			elif msg._type == 'ping':
