@@ -1,6 +1,10 @@
+from ondevice.core import config
 from ondevice.core.connection import Connection, Response
 
+import imp
 import io
+import os
+import pkgutil
 import re
 from threading import Thread
 
@@ -44,10 +48,29 @@ class TunnelService(Endpoint):
     def __init__(self, brokerUrl, tunnelId, devId):
         self._conn = Response(brokerUrl, tunnelId, devId, cb=self.gotData)
 
+def listModules():
+    knownNames = []
+    for importer, modName, isPkg in pkgutil.iter_modules(__path__):
+        if not isPkg:
+            knownNames.append(modName)
+            yield modName
+
+    # TODO add support for user-local modules (stored in .config/ondevice/modules)
+    userPath = config._getConfigPath('modules')
+    for importer, modName, isPkg in pkgutil.iter_modules([userPath]):
+        if not isPkg and modName not in knownNames:
+            yield modName
 
 def load(name):
-    ondevice = __import__('ondevice.modules.{0}'.format(name))
-    return getattr(ondevice.modules, name)
+    try:
+        ondevice = __import__('ondevice.modules.{0}'.format(name))
+        return getattr(ondevice.modules, name)
+    except ImportError as e:
+        # maybe there's a user-installed module?
+        # TODO use importlib if possible
+        userPath = config._getConfigPath('modules')
+        mod = imp.load_source('usermodules.{0}'.format(name), os.path.join(userPath, '{0}.py'.format(name)))
+        return mod
 
 def loadClient(devId, protocolStr, *args, auth=None):
     modName, suffix, svcName = _parseProtocolString(protocolStr)
