@@ -1,4 +1,4 @@
-from ondevice.core import config
+from ondevice.core import config, service
 from ondevice.core.connection import Connection, Response
 
 import imp
@@ -93,6 +93,9 @@ def loadClient2(devId, modName, suffix, svcName, *args, auth=None):
     return rc
 
 def getService(req, devId):
+    svc = service.get(req.service)
+    if svc['protocol'] != req.protocol:
+        raise Exception("Error: protocol mismatch (expected={0}, actual={1})".format(svc['protocol'], req.protocol))
     mod = load(req.protocol)
     rc = mod.Service(req.broker, req.tunnelId, devId)
     return rc

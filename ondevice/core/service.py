@@ -2,7 +2,7 @@
 # TODO implement proper service handling (persisting the active services and giving the user a way to register/remove them easily)
 
 from ondevice.core import config
-from ondevice import modules
+#from ondevice import modules
 
 import json
 import re
@@ -19,6 +19,7 @@ def add(name, protocol, hidden=False, **options):
     if config.hasValue('services', name):
         raise Exception("Service '{0}' already exists!".format(name))
     # TODO have some nicer error messages
+    from ondevice import modules # TODO find a better way to import this (issue: circular imports)
     modules.load(protocol)
 
     config.setValue('services', name, json.dumps(data))
