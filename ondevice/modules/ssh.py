@@ -22,6 +22,9 @@ import subprocess
 import sys
 import threading
 
+info = 'Connect to your devices\' SSH server'
+encrypted = True
+
 class Client(TunnelClient):
     """ Endpoint stub that simply invokes 'ssh' with the ProxyCommand set to
     'onclient connect ssh:tunnel' """
