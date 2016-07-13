@@ -57,9 +57,9 @@ class Client_tunnel(TunnelClient):
         while True:
             # read1() only invokes the underlying read function only once (and
             # in contrast to read() returns as soon as there's data available,
-            # not just when 8192 bytes have actually been read)
+            # not just when 4096 bytes have actually been read)
             stream = self.getConsoleBuffer(sys.stdin)
-            data = stream.read1(8192)
+            data = stream.read1(4096)
             if data:
                 logging.debug("sndData: %s", repr(data))
                 self._conn.send(data)
@@ -76,7 +76,7 @@ class Service(TunnelService):
         self._sock.connect(('localhost', 22))
 
         while True:
-            data = self._sock.recv(8192)
+            data = self._sock.recv(4096)
             if data:
                 logging.debug("sndData: %s", repr(data))
                 self._conn.send(data)
