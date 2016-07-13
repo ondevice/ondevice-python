@@ -21,7 +21,10 @@ from ondevice.core.session import Session
 def run(module, dev, *args, auth=None):
     client = modules.loadClient(dev, module, *args, auth=auth)
     client.startRemote()
-    client.runLocal() # don't run in a background thread
+
+    args = ()
+    if hasattr(client, '_args'): args = client._args
+    client.runLocal(*args) # don't run in a background thread
 
 def usage():
     return "<module> <dev> [svcName]", "Connects to a service on the specified device"

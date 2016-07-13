@@ -28,11 +28,8 @@ encrypted = True
 class Client(TunnelClient):
     """ Endpoint stub that simply invokes 'ssh' with the ProxyCommand set to
     'onclient connect ssh:tunnel' """
-    def __init__(self, devId, protocol, svcName, *args, auth=None):
-        TunnelClient.__init__(self, devId, protocol, svcName, auth=None)
-        self._sshArgs = list(args)
 
-    def runLocal(self):
+    def runLocal(self, *args):
         params = self._params
         devId = params['devId']
         protocol = params['protocol']
@@ -43,7 +40,7 @@ class Client(TunnelClient):
         if 'auth' in params:
             proxyCmd.append('auth={0}'.format(params['auth']))
 
-        ssh = subprocess.Popen(['ssh', '-o', 'ProxyCommand={0}'.format(' '.join(proxyCmd))]+self._sshArgs+['ondevice:{0}'.format(devId)], stdin=None, stdout=None, stderr=None)
+        ssh = subprocess.Popen(['ssh', '-o', 'ProxyCommand={0}'.format(' '.join(proxyCmd))]+list(args)+['ondevice:{0}'.format(devId)], stdin=None, stdout=None, stderr=None)
         ssh.wait()
 
     def startRemote(self):

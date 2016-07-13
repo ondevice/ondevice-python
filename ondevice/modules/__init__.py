@@ -24,7 +24,9 @@ class Endpoint:
         self._remoteThread.start()
 
     def startLocal(self):
-        self._localThread = Thread(target = self.runLocal)
+        args = ()
+        if hasattr(self, '_args'): args = self._args
+        self._localThread = Thread(target = self.runLocal, args=args)
         self._localThread.start()
 
     def gotData(self, data):
@@ -35,8 +37,7 @@ class Endpoint:
 
 class TunnelClient(Endpoint):
     def __init__(self, devId, protocol, svcName, *args, auth=None):
-        if len(args) > 0:
-            raise Exception("Too many arguments!")
+        self._args = args
 
         self._params = { 'devId': devId, 'svcName': svcName }
         if auth != None:
