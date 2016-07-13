@@ -56,7 +56,7 @@ def listModules():
             knownNames.append(modName)
             yield modName
 
-    # TODO add support for user-local modules (stored in .config/ondevice/modules)
+    # list user-local modules (stored in .config/ondevice/modules)
     userPath = config._getConfigPath('modules')
     for importer, modName, isPkg in pkgutil.iter_modules([userPath]):
         if not isPkg and modName not in knownNames:
