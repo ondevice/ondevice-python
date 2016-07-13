@@ -49,11 +49,16 @@ class Session(sock.Socket):
 				self.send(response)
 			elif msg._type == 'connect':
 				logging.info("Got '%s' request by user %s (ip: %s)", msg.service, msg.clientUser, msg.clientIp)
-				# TODO actually use the service names instead of just the protocol
-				svc = modules.getService(msg, self._devId)
+				try:
+					svc = modules.getService(msg, self._devId)
 
-				svc.startRemote()
-				svc.startLocal()
+					svc.startRemote()
+					svc.startLocal()
+				except Exception as e:
+					# got error -> notify the server
+					self.send({'_type': 'connectError', 'tunnelId': msg['tunnelId'], code=502, 'msg': repr(e)})
+					raise e
+
 			elif msg._type == 'error':
 				errType = 'Error'
 				if msg.code == 400: errType = 'Bad Request'
