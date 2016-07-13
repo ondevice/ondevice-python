@@ -8,7 +8,7 @@ import os
 _config = None
 
 def addSection(name):
-    return _getConfig().add_section(name)
+    return _getConfig(True).add_section(name)
 
 def getClientAuth(tgtUser=None):
     if tgtUser != None:
@@ -36,9 +36,9 @@ def setDeviceName(slug): setValue('device', 'name', slug)
 
 
 
-def _getConfig():
+def _getConfig(reread=False):
     global _config
-    if _config == None:
+    if reread == True or _config == None:
         configFile = _getConfigPath('ondevice.conf')
         _config = ConfigParser()
         _config.read(configFile)
@@ -71,20 +71,21 @@ def getValue(section, key, default=None):
         return default
 
 def remove(section, key):
-    cfg = _getConfig()
+    cfg = _getConfig(True)
     if not cfg.remove_option(section, key):
         raise KeyError("No such value: {0}/{1}".format(section, key))
 
-    # TODO store a temporary file first (to avoid corrupting the config file in case of a full disk)
-    cfgPath = _getConfigPath('ondevice.conf')
-    with open(cfgPath, 'w') as f:
-        cfg.write(f)
+    _saveConfig()
 
 def setValue(section, key, value):
-    cfg = _getConfig()
+    cfg = _getConfig(True)
     cfg.set(section, key, value)
+    _saveConfig()
 
-    # TODO store a temporary file first (to avoid corrupting the config file in case of a full disk)
+def _saveConfig():
+    cfg = _getConfig()
     cfgPath = _getConfigPath('ondevice.conf')
-    with open(cfgPath, 'w') as f:
+    tmpPath = os.path.join(os.path.dirname(cfgPath), '.{0}.tmp'.format(os.path.basename(cfgPath)))
+    with open(tmpPath, 'w') as f:
         cfg.write(f)
+    os.rename(tmpPath, cfgPath)
