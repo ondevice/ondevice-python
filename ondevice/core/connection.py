@@ -70,7 +70,8 @@ class Connection(TunnelSocket):
         if auth != None:
             config.setClientAuth(auth)
         else:
-            auth = config.getClientAuth()
+            user,_ = parseDeviceName(dev)
+            auth = config.getClientAuth(user)
             if auth == None:
                 logging.error("Missing authentication key. You'll have to set it once using the --auth=... option")
                 sys.exit(1)
@@ -87,3 +88,12 @@ class Response(TunnelSocket):
         """ Got an EOF from the remote host -> closing the websocket """
         with self._lock:
             self._ws.close()
+
+
+def parseDeviceName(name):
+    slashPos = name.find('/')
+    user = None
+    if slashPos >= 0:
+        user = name[:slashPos]
+        name = name[slashPos+1:]
+    return user, name
