@@ -56,7 +56,7 @@ class Session(sock.Socket):
 					svc.startLocal()
 				except Exception as e:
 					# got error -> notify the server
-					self.send({'_type': 'connectError', 'tunnelId': msg['tunnelId'], code=502, 'msg': repr(e)})
+					self.send({'_type': 'connectError', 'tunnelId': msg['tunnelId'], code: 502, 'msg': repr(e)})
 					raise e
 
 			elif msg._type == 'error':
