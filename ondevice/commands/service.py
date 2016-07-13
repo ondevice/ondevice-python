@@ -1,9 +1,9 @@
 """
-{cmd} services
+{cmd} service
   - lists local services
-{cmd} services add  [-h/--hidden] <protocol> <name> [parameters]
+{cmd} service add [-h/--hidden] <protocol> <name> [parameters]
   - adds a (hidden) service with the given protocol, name and parameters
-{cmd} services rm <name> [-f/--force]
+{cmd} service rm <name> [-f/--force]
   - removes a service (by name)
 
 The default installation only has the 'ssh' 'echo' service enabled.
@@ -13,12 +13,12 @@ Parameters:
 
 Examples:
 
-$ {cmd} services
+$ {cmd} service
 Proto   Name    Params
 ssh     ssh     --port=378
 echo    [echo]
 
-$ {cmd} services rm echo -f
+$ {cmd} service rm echo -f
 $ {cmd} services add echo otherEcho --hidden
 """
 
