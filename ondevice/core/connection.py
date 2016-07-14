@@ -20,15 +20,10 @@ class TunnelSocket(sock.Socket):
         # - 'data:': data, channel 0
         # - 'data.3:': data, channel 3
         # - 'meta': metadata
-        msgType, channel = (messageData[:colonPos]+b'.0').split(b'.')
-        messageData = messageData[colonPos+1:]
-        channel = int(channel)
-
+        msgType, messageData = self._takeHeader(messageData)
         logging.debug('{0} << {1} ({2} bytes)'.format(msgType, repr(messageData), len(messageData)))
 
         if msgType == b'data':
-            if channel != 0:
-                raise Exception("Channel support not yet implemented")
             return self._cb(messageData)
         elif msgType == b'meta':
             if messageData == b'connected':
@@ -39,14 +34,33 @@ class TunnelSocket(sock.Socket):
                 self.onEOF()
             else:
                 raise Exception("Unsupported meta message: '{0}'", messageData)
+        elif msgType == b'error':
+            code, messageData = self._takeHeader(messageData)
+            code = int(code)
+            self.onError(code, messageData.decode('utf8'))
         else:
             raise Exception("Unsupported message type: '{0}'".format(msgType))
 
     def _onConnected(self):
         self._lock.release()
 
+    def _takeHeader(self, msg, default=None):
+        colonPos = msg.find(b':')
+        hdr = None
+        if colonPos >= 0:
+            hdr = msg[:colonPos]
+            msg = msg[colonPos+1:]
+        elif default != None:
+            hdr = default
+        else:
+            raise Exception('missing header (msg: {0})'.format(msg))
+        return hdr, msg
+
     def onEOF(self):
         raise Exception("No one implemented EOF!?!")
+
+    def onError(self, code, msg):
+        raise Exception("Error (code={0}): {1}".format(code, msg))
 
     def send(self, msg):
         if (type(msg) != bytes):
