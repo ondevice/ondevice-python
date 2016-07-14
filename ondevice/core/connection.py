@@ -24,7 +24,7 @@ class TunnelSocket(sock.Socket):
         logging.debug('{0} << {1} ({2} bytes)'.format(msgType, repr(messageData), len(messageData)))
 
         if msgType == b'data':
-            return self._cb(messageData)
+            return self._messageCB(messageData)
         elif msgType == b'meta':
             if messageData == b'connected':
                 logging.debug("-- connected --")
@@ -57,7 +57,10 @@ class TunnelSocket(sock.Socket):
         return hdr, msg
 
     def onEOF(self):
-        raise Exception("No one implemented EOF!?!")
+        if hasattr(self, '_eofCB'):
+            self._eofCB()
+        else:
+            raise Exception("No one implemented EOF!?!")
 
     def onError(self, code, msg):
         raise Exception("Error (code={0}): {1}".format(code, msg))
@@ -78,8 +81,9 @@ class TunnelSocket(sock.Socket):
             self._ws.send(b'meta:EOF', 2) #OPCODE_BINARY
 
 class Connection(TunnelSocket):
-    def __init__(self, dev, protocol, service, cb=None, auth=None):
-        self._cb = cb
+    def __init__(self, dev, protocol, service, onMessage=None, onEOF=None, auth=None):
+        self._messageCB = onMessage
+        self._eofCB = onEOF
 
         if auth != None:
             config.setClientAuth(auth)
@@ -94,9 +98,9 @@ class Connection(TunnelSocket):
 
 
 class Response(TunnelSocket):
-    def __init__(self, broker, tunnelId, dev, cb=None):
+    def __init__(self, broker, tunnelId, dev, onMessage=None):
         TunnelSocket.__init__(self, '/accept', tunnel=tunnelId, dev=dev, baseUrl=broker)
-        self._cb = cb
+        self._messageCB = onMessage
 
     def onEOF(self):
         """ Got an EOF from the remote host -> closing the websocket """

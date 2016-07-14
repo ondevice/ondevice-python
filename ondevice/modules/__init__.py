@@ -43,11 +43,15 @@ class TunnelClient(Endpoint):
         if auth != None:
             self._params['auth'] = auth
 
-        self._conn = Connection(devId, protocol, svcName, auth=auth, cb=self.gotData)
+        self._conn = Connection(devId, protocol, svcName, auth=auth, onMessage=self.gotData, onEOF=self.onEOF)
+        self._conn.onEOF = self.onEOF
+
+    def onEOF(self):
+        raise Exception("EOF not implemented!")
 
 class TunnelService(Endpoint):
     def __init__(self, brokerUrl, tunnelId, devId):
-        self._conn = Response(brokerUrl, tunnelId, devId, cb=self.gotData)
+        self._conn = Response(brokerUrl, tunnelId, devId, onMessage=self.gotData)
 
 def listModules():
     knownNames = []
