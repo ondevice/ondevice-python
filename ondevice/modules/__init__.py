@@ -36,7 +36,7 @@ class Endpoint:
         self._conn.run()
 
 class TunnelClient(Endpoint):
-    def __init__(self, devId, protocol, svcName, *args, auth=None):
+    def __init__(self, *args, devId, protocol, svcName, auth=None):
         self._args = args
 
         self._params = { 'devId': devId, 'svcName': svcName }
@@ -73,13 +73,13 @@ def load(name):
         mod = imp.load_source('usermodules.{0}'.format(name), os.path.join(userPath, '{0}.py'.format(name)))
         return mod
 
-def loadClient(devId, protocolStr, *args, auth=None):
+def loadClient(*args, devId, protocolStr, auth=None):
     modName, suffix, svcName = _parseProtocolString(protocolStr)
     if svcName == None:
         svcName = modName
-    return loadClient2(devId, modName, suffix, svcName, *args, auth=auth)
+    return loadClient2(*args, devId=devId, modName=modName, suffix=suffix, svcName=svcName, auth=auth)
 
-def loadClient2(devId, modName, suffix, svcName, *args, auth=None):
+def loadClient2(*args, devId, modName, suffix, svcName, auth=None):
     className = 'Client'
 
     if suffix != None:
@@ -89,7 +89,7 @@ def loadClient2(devId, modName, suffix, svcName, *args, auth=None):
     if not hasattr(mod, className):
         raise Exception("Module '{0}' doesn't have a '{1}' endpoint".format(modName, suffix))
     clazz = getattr(mod, className)
-    rc = clazz(devId, modName, svcName, *args, auth=auth)
+    rc = clazz(*args, devId=devId, protocol=modName, svcName=svcName, auth=auth)
     rc._params.update({'protocol': modName, 'endpoint': suffix })
     return rc
 
@@ -98,7 +98,7 @@ def getService(req, devId):
     if svc['protocol'] != req.protocol:
         raise Exception("Error: protocol mismatch (expected={0}, actual={1})".format(svc['protocol'], req.protocol))
     mod = load(req.protocol)
-    rc = mod.Service(req.broker, req.tunnelId, devId)
+    rc = mod.Service(brokerUrl=req.broker, tunnelId=req.tunnelId, devId=devId)
     return rc
 
 def _parseProtocolString(protocolStr):

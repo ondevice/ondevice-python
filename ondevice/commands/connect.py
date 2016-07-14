@@ -18,8 +18,9 @@ Examples:
 from ondevice import modules
 from ondevice.core.session import Session
 
+
 def run(module, dev, *args, auth=None):
-    client = modules.loadClient(dev, module, *args, auth=auth)
+    client = modules.loadClient(*args, devId=dev, protocolStr=module, auth=auth)
     client.startRemote()
 
     args = ()
