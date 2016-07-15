@@ -81,25 +81,18 @@ class TunnelSocket(sock.Socket):
             self._ws.send(b'meta:EOF', 2) #OPCODE_BINARY
 
 class Connection(TunnelSocket):
-    def __init__(self, dev, protocol, service, onMessage=None, onEOF=None, auth=None):
+    def __init__(self, dev, protocol, service, onMessage=None, onEOF=None):
         self._messageCB = onMessage
         self._eofCB = onEOF
 
-        if auth != None:
-            config.setClientAuth(auth)
-        else:
-            user,_ = parseDeviceName(dev)
-            auth = config.getClientAuth(user)
-            if auth == None:
-                logging.error("Missing authentication key. You'll have to set it once using the --auth=... option")
-                sys.exit(1)
-
+        auth = (config.getClientUser(), config.getClientAuth())
         TunnelSocket.__init__(self, '/connect', auth=auth, dev=dev, protocol=protocol, service=service)
 
 
 class Response(TunnelSocket):
     def __init__(self, broker, tunnelId, dev, onMessage=None):
-        TunnelSocket.__init__(self, '/accept', tunnel=tunnelId, dev=dev, baseUrl=broker)
+        auth = (config.getDeviceUser(), config.getDeviceAuth())
+        TunnelSocket.__init__(self, '/accept', tunnel=tunnelId, dev=dev, baseUrl=broker, auth=auth)
         self._messageCB = onMessage
 
     def onEOF(self):

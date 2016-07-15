@@ -20,6 +20,15 @@ def getClientAuth(tgtUser=None):
 def getClientUser(): return getValue('client', 'user')
 def getDeviceAuth(): return getValue('device', 'auth')
 def getDeviceId(): return getValue('device', 'id')
+def getDeviceUser():
+    # code to fix backwards compatibility
+    # TODO remove this snippet as soon as all devices are updated
+    if not hasValue('device', 'user') and hasValue('device', 'name'):
+        rc = getValue('device', 'name').split('/')[0]
+        setDeviceUser(rc)
+        return rc
+    else:
+        return getValue('device', 'user')
 
 def hasSection(name):
     return _getConfig().has_section(name)
@@ -35,6 +44,7 @@ def setClientUser(name): setValue('client', 'user', name)
 def setDeviceAuth(auth): setValue('device', 'auth', auth)
 def setDeviceId(devId): setValue('device', 'id', devId)
 def setDeviceName(slug): setValue('device', 'name', slug)
+def setDeviceUser(name): setValue('device', 'user', name)
 
 
 

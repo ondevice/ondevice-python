@@ -25,13 +25,13 @@ class Message:
     def __repr__(self): return "Message({0})".format(self._data)
 
 class Socket:
-    def __init__(self, endpoint, baseUrl=None, **params):
+    def __init__(self, endpoint, baseUrl=None, auth=None, **params):
         global BASE_URL
 
         # TODO make base URL configurable
         # TODO do proper URL handling
         if baseUrl == None:
-            baseUrl == BASE_URL
+            baseUrl = BASE_URL
 
         if 'version' not in params:
             params['version'] = ondevice.getVersion()
@@ -39,7 +39,15 @@ class Socket:
         paramStr = '&'.join('{0}={1}'.format(k,v) for k, v in params.items())
         self._url = '{baseUrl}{endpoint}/websocket?{paramStr}'.format(**locals())
 
+        headers = []
+        if auth != None:
+            basicAuth = "{0}:{1}".format(*auth).encode('ascii')
+            headers.append("Authorization: Basic {0}".format(base64.b64encode(basicAuth).decode('ascii')))
+        else:
+            raise Exception("Missing authentication data")
+
         self._ws = websocket.WebSocketApp(self._url,
+            header=headers,
             on_message=self._onMessage,
             on_error=self._onError,
             on_open=self._onOpen,

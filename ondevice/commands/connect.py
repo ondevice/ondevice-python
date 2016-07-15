@@ -20,7 +20,7 @@ from ondevice.core.session import Session
 
 
 def run(module, dev, *args, auth=None):
-    client = modules.loadClient(*args, devId=dev, protocolStr=module, auth=auth)
+    client = modules.loadClient(*args, devId=dev, protocolStr=module)
     client.startRemote()
 
     args = ()

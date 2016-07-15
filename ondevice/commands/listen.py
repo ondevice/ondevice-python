@@ -10,6 +10,7 @@ import sys
 import time
 
 def run(__sentinel__=None, auth=None):
+    # TODO properly implement --user and --auth param support
     if __sentinel__ != None:
         raise Exception("Too many arguments")
 
@@ -18,7 +19,7 @@ def run(__sentinel__=None, auth=None):
     while (True):
         # TODO think about moving the loop into Session
         # TODO right now it's impossible to reuse Session objects (since the URL's set in the constructor but the devId might change afterwards)
-        session = Session(auth)
+        session = Session()
         if session.run() == True:
             retryDelay = 10
 

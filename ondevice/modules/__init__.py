@@ -36,14 +36,11 @@ class Endpoint:
         self._conn.run()
 
 class TunnelClient(Endpoint):
-    def __init__(self, *args, devId, protocol, svcName, auth=None):
+    def __init__(self, *args, devId, protocol, svcName):
         self._args = args
 
         self._params = { 'devId': devId, 'svcName': svcName }
-        if auth != None:
-            self._params['auth'] = auth
-
-        self._conn = Connection(devId, protocol, svcName, auth=auth, onMessage=self.gotData, onEOF=self.onEOF)
+        self._conn = Connection(devId, protocol, svcName, onMessage=self.gotData, onEOF=self.onEOF)
         self._conn.onEOF = self.onEOF
 
     def onEOF(self):
@@ -77,13 +74,13 @@ def load(name):
         mod = imp.load_source('usermodules.{0}'.format(name), os.path.join(userPath, '{0}.py'.format(name)))
         return mod
 
-def loadClient(*args, devId, protocolStr, auth=None):
+def loadClient(*args, devId, protocolStr):
     modName, suffix, svcName = _parseProtocolString(protocolStr)
     if svcName == None:
         svcName = modName
-    return loadClient2(*args, devId=devId, modName=modName, suffix=suffix, svcName=svcName, auth=auth)
+    return loadClient2(*args, devId=devId, modName=modName, suffix=suffix, svcName=svcName)
 
-def loadClient2(*args, devId, modName, suffix, svcName, auth=None):
+def loadClient2(*args, devId, modName, suffix, svcName):
     className = 'Client'
 
     if suffix != None:
@@ -93,7 +90,7 @@ def loadClient2(*args, devId, modName, suffix, svcName, auth=None):
     if not hasattr(mod, className):
         raise Exception("Module '{0}' doesn't have a '{1}' endpoint".format(modName, suffix))
     clazz = getattr(mod, className)
-    rc = clazz(*args, devId=devId, protocol=modName, svcName=svcName, auth=auth)
+    rc = clazz(*args, devId=devId, protocol=modName, svcName=svcName)
     rc._params.update({'protocol': modName, 'endpoint': suffix })
     return rc
 

@@ -9,22 +9,14 @@ import sys
 
 class Session(sock.Socket):
 	""" Connects to the ondevice service """
-	def __init__(self, auth):
+	def __init__(self):
 		devId = config.getDeviceId()
 		kwargs = {}
 		if devId != None:
 			kwargs['id'] = devId
 
-		if auth != None:
-			config.setDeviceAuth(auth)
-		else:
-			auth = config.getDeviceAuth()
-			if auth == None:
-				logging.error("Missing authentication key. You'll have to set it once using the --auth=... option")
-				sys.exit(1)
-
-		kwargs['auth'] = auth
-		sock.Socket.__init__(self, '/serve', **kwargs)
+		auth = (config.getDeviceUser(), config.getDeviceAuth())
+		sock.Socket.__init__(self, '/serve', auth=auth, **kwargs)
 
 	def onMessage(self, msg):
 		try:
@@ -56,7 +48,7 @@ class Session(sock.Socket):
 					svc.startLocal()
 				except Exception as e:
 					# got error -> notify the server
-					self.send({'_type': 'connectError', 'tunnelId': msg['tunnelId'], code: 502, 'msg': repr(e)})
+					self.send({'_type': 'connectError', 'tunnelId': msg.tunnelId, 'code': 502, 'msg': repr(e)})
 					raise e
 
 			elif msg._type == 'error':
