@@ -89,15 +89,15 @@ class Socket:
         self._ws.send(data)
 
 def apiDELETE(endpoint, params={}, data=None):
-    return restRequest('DELETE', endpoint, params=params, data=data)
+    return apiRequest('DELETE', endpoint, params=params, data=data)
 
 def apiGET(endpoint, params={}):
-    return restRequest('GET', endpoint, params=params)
+    return apiRequest('GET', endpoint, params=params)
 
 def apiPOST(endpoint, params={}, data=None):
-    return restRequest('POST', endpoint, params=params, data=data)
+    return apiRequest('POST', endpoint, params=params, data=data)
 
-def restRequest(method, endpoint, params={}, data=None):
+def apiRequest(method, endpoint, params={}, data=None):
     # TODO implement URL params support
     user = config.getClientUser()
     auth = config.getClientAuth()
