@@ -1,22 +1,22 @@
 """Manage device properties
 
-- {cmd} prop list <devName> [key]... - List a device's properties
-- {cmd} prop set <devName> <key>=<value>... - set one or more device properties
-- {cmd} prop rm <devName> <key>... - remove specific device properties
+- {cmd} dev <devName> props <devName> [key]... - List a device's properties
+- {cmd} dev <devName> set <devName> <key>=<value>... - set one or more device properties
+- {cmd} dev <devName> rm <key>... - remove specific device properties
 
 Examples:
-$ {cmd} prop list me/someDevice
+$ {cmd} dev me/someDevice props
 foo=bar
 abc=123
 
-$ {cmd} prop list me/someDevice foo hello
+$ {cmd} dev me/someDevice props foo hello
 foo=bar
 hello=
 
-$ {cmd} prop rm me/someDevice abc
+$ {cmd} dev me/someDevice rm abc
 foo=bar
 
-$ {cmd} prop set me/someDevice hello=world answer=42
+$ {cmd} dev me/someDevice set hello=world answer=42
 foo=bar
 hello=world
 answer=42
@@ -46,9 +46,10 @@ def propSet(devName, *values):
 
 def propRm(devName, *keys):
     resp = sock.apiDELETE("/device/{0}/props".format(devName), data={'props': keys})
+    _printProps(resp)
 
-def run(subcmd, devName, *args):
-    if subcmd == 'list':
+def run(devName, subcmd, *args):
+    if subcmd == 'props':
         propList(devName, *args)
     elif subcmd == 'set':
         propSet(devName, *args)
@@ -58,4 +59,4 @@ def run(subcmd, devName, *args):
         raise Exception("Unsupported subcommand: {0}".format(subcmd))
 
 def usage():
-    return "list/set/rm <devName> [args]", "Manage device properties"
+    return "<devName> props/set/rm [args]", "Manage device properties"
