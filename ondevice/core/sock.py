@@ -1,9 +1,19 @@
 import ondevice
+from ondevice.core import config
 
+import base64
 import json
 import logging
 import ssl
 import websocket
+
+try:
+    from http.client import HTTPConnection, HTTPSConnection
+except ImportError:
+    from httplib import HTTPConnection, HTTPSConnection
+
+BASE_URL='wss://api.ondevice.io/v1.0'
+#BASE_URL='ws://localhost:8080/v1.0'
 
 class Message:
     def __init__(self, data):
@@ -16,11 +26,12 @@ class Message:
 
 class Socket:
     def __init__(self, endpoint, baseUrl=None, **params):
+        global BASE_URL
+
         # TODO make base URL configurable
         # TODO do proper URL handling
         if baseUrl == None:
-            baseUrl = 'wss://api.ondevice.io/v1.0'
-#            baseUrl = 'ws://localhost:8080/v1.0'
+            baseUrl == BASE_URL
 
         if 'version' not in params:
             params['version'] = ondevice.getVersion()
@@ -76,3 +87,39 @@ class Socket:
 
     def send(self, data):
         self._ws.send(data)
+
+def apiGET(endpoint, params={}):
+    return restRequest('GET', endpoint, params)
+
+def restRequest(method, endpoint, params={}, data=None):
+    # TODO implement URL params support
+    user = config.getClientUser()
+    auth = config.getClientAuth()
+    basicAuth = base64.b64encode("{0}:{1}".format(user,auth).encode('ascii')).decode('ascii')
+    headers = { 'Authorization' : 'Basic {0}'.format(basicAuth)}
+
+    # parse data:
+    if data != None:
+        data = json.dumps(data)
+        headers.update({
+            'Content-type': 'application/javascript',
+        }) # TODO check if we need to also set the content-length
+
+    # TODO use the BASE_URL
+    c = HTTPSConnection("api.ondevice.io")
+    # TODO do proper URL handling (urllib)
+    c.request('GET', '/v1.0{0}'.format(endpoint), body=data, headers=headers)
+    resp = c.getresponse()
+    if resp.status < 200 or resp.status >= 300:
+        # TODO implement HTTP redirect support
+        raise Exception("API server responded with code {0}!".format(res.status))
+    elif 'content-type' not in resp.headers:
+        raise Exception("Response lacks Content-type header!")
+    cType=resp.headers['content-type'].lower().split(';')
+
+    if cType[0] != 'application/json':
+        raise Exception("Expected an 'application/json' response (was: '{0}')".format(cType[0]))
+    rc = resp.read()
+    if type(rc) == bytes:
+        rc = rc.decode('utf8') # TODO check the actual 'charset' part from cType
+    return json.loads(rc)

@@ -17,6 +17,7 @@ def getClientAuth(tgtUser=None):
             return getValue('client', userKey)
     return getValue('client', 'auth')
 
+def getClientUser(): return getValue('client', 'user')
 def getDeviceAuth(): return getValue('device', 'auth')
 def getDeviceId(): return getValue('device', 'id')
 
@@ -30,6 +31,7 @@ def listKeys(section):
     return _getConfig().options(section)
 
 def setClientAuth(auth): setValue('client', 'auth', auth)
+def setClientUser(name): setValue('client', 'user', name)
 def setDeviceAuth(auth): setValue('device', 'auth', auth)
 def setDeviceId(devId): setValue('device', 'id', devId)
 def setDeviceName(slug): setValue('device', 'name', slug)
