@@ -88,8 +88,14 @@ class Socket:
     def send(self, data):
         self._ws.send(data)
 
+def apiDELETE(endpoint, params={}, data=None):
+    return restRequest('DELETE', endpoint, params=params, data=data)
+
 def apiGET(endpoint, params={}):
-    return restRequest('GET', endpoint, params)
+    return restRequest('GET', endpoint, params=params)
+
+def apiPOST(endpoint, params={}, data=None):
+    return restRequest('POST', endpoint, params=params, data=data)
 
 def restRequest(method, endpoint, params={}, data=None):
     # TODO implement URL params support
@@ -102,24 +108,26 @@ def restRequest(method, endpoint, params={}, data=None):
     if data != None:
         data = json.dumps(data)
         headers.update({
-            'Content-type': 'application/javascript',
+            'Content-type': 'application/json; charset=utf8',
         }) # TODO check if we need to also set the content-length
 
     # TODO use the BASE_URL
     c = HTTPSConnection("api.ondevice.io")
     # TODO do proper URL handling (urllib)
-    c.request('GET', '/v1.0{0}'.format(endpoint), body=data, headers=headers)
+    c.request(method, '/v1.0{0}'.format(endpoint), body=data, headers=headers)
     resp = c.getresponse()
+    rc = resp.read()
+
     if resp.status < 200 or resp.status >= 300:
         # TODO implement HTTP redirect support
-        raise Exception("API server responded with code {0}!".format(res.status))
+        logging.warning("Error message: %s", rc)
+        raise Exception("API server responded with code {0}!".format(resp.status))
     elif 'content-type' not in resp.headers:
         raise Exception("Response lacks Content-type header!")
-    cType=resp.headers['content-type'].lower().split(';')
 
+    cType=resp.headers['content-type'].lower().split(';')
     if cType[0] != 'application/json':
         raise Exception("Expected an 'application/json' response (was: '{0}')".format(cType[0]))
-    rc = resp.read()
     if type(rc) == bytes:
         rc = rc.decode('utf8') # TODO check the actual 'charset' part from cType
     return json.loads(rc)
