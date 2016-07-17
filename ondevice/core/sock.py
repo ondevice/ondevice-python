@@ -12,9 +12,9 @@ try:
 except ImportError:
     from httplib import HTTPConnection, HTTPSConnection
 
-BASE_URL='wss://api.ondevice.io/v1.0'
-#BASE_URL='ws://localhost:8080/v1.0'
-
+BASE_URL='wss://api.ondevice.io/v1.1'
+#BASE_URL='ws://localhost:8080/v1.1'
+#BASE_URL='wss://local.ondevice.io:8443/v1.1'
 class Message:
     def __init__(self, data):
         assert type(data) == dict
@@ -122,7 +122,7 @@ def apiRequest(method, endpoint, params={}, data=None):
     # TODO use the BASE_URL
     c = HTTPSConnection("api.ondevice.io")
     # TODO do proper URL handling (urllib)
-    c.request(method, '/v1.0{0}'.format(endpoint), body=data, headers=headers)
+    c.request(method, '/v1.1{0}'.format(endpoint), body=data, headers=headers)
     resp = c.getresponse()
     rc = resp.read()
 
