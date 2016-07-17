@@ -1,5 +1,8 @@
 /build/
 /dist/
 /ondevice.egg-info/
+/.project
+/.pydevproject
 __pycache__/
+.*.swp
 *.pyc
