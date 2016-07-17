@@ -26,14 +26,20 @@ class TunnelSocket(sock.Socket):
         if msgType == b'data':
             return self._messageCB(messageData)
         elif msgType == b'meta':
-            if messageData == b'connected':
+            msgType, messageData = self._takeHeader(messageData)
+
+            if msgType == b'connected':
+                params = self._parseParams(messageData)
+                assert b'api' in params
+
                 logging.debug("-- connected --")
+                self._apiVersion = params[b'api']
                 self._onConnected()
-            elif messageData == b'EOF':
+            elif msgType == b'EOF':
                 logging.debug("-- got EOF --")
                 self.onEOF()
             else:
-                raise Exception("Unsupported meta message: '{0}'", messageData)
+                raise Exception("Unsupported meta message: '{0}'".format(messageData))
         elif msgType == b'error':
             code, messageData = self._takeHeader(messageData)
             code = int(code)
@@ -44,16 +50,23 @@ class TunnelSocket(sock.Socket):
     def _onConnected(self):
         self._lock.release()
 
-    def _takeHeader(self, msg, default=None):
+    def _parseParams(self, params):
+        """ Parse parameters in the format 'par1=val1,par2=val2' """
+        rc = {}
+        for param in params.split(b','):
+            k,v = param.split(b'=')
+            rc[k] = v
+        return rc
+
+    def _takeHeader(self, msg):
         colonPos = msg.find(b':')
         hdr = None
         if colonPos >= 0:
             hdr = msg[:colonPos]
             msg = msg[colonPos+1:]
-        elif default != None:
-            hdr = default
         else:
-            raise Exception('missing header (msg: {0})'.format(msg))
+            hdr = msg
+            msg = None
         return hdr, msg
 
     def onEOF(self):
