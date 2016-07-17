@@ -29,8 +29,11 @@ class TunnelSocket(sock.Socket):
             msgType, messageData = self._takeHeader(messageData)
 
             if msgType == b'connected':
-                params = self._parseParams(messageData)
-                assert b'api' in params
+                if messageData != None:
+                    params = self._parseParams(messageData)
+                    assert b'api' in params
+                else:
+                    params = {b'api': b'v1.0'}
 
                 logging.debug("-- connected --")
                 self._apiVersion = params[b'api']
@@ -98,7 +101,8 @@ class Connection(TunnelSocket):
         self._messageCB = onMessage
         self._eofCB = onEOF
 
-        auth = (config.getClientUser(), config.getClientAuth())
+        user,dev = parseDeviceName(dev)
+        auth = config.getClientAuth(user)
         TunnelSocket.__init__(self, '/connect', auth=auth, dev=dev, protocol=protocol, service=service)
 
 

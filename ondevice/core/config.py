@@ -11,13 +11,14 @@ def addSection(name):
     return _getConfig(True).add_section(name)
 
 def getClientAuth(tgtUser=None):
+    clientUser = getValue('client', 'user')
     if tgtUser != None:
-        userKey = 'auth_{0}'.format(tgtUser)
-        if hasValue('client', userKey):
-            return getValue('client', userKey)
-    return getValue('client', 'auth')
+        if tgtUser != clientUser:
+            userKey = 'auth_{0}'.format(tgtUser)
+            if hasValue('client', userKey):
+                return tgtUser, getValue('client', userKey)
+    return clientUser, getValue('client', 'auth')
 
-def getClientUser(): return getValue('client', 'user')
 def getDeviceAuth(): return getValue('device', 'auth')
 def getDeviceId(): return getValue('device', 'id')
 def getDeviceUser():
