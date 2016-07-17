@@ -14,7 +14,15 @@ class Endpoint:
         if hasattr(stream, 'buffer'):
             return stream.buffer # py3
         else:
-            rc = io.open(stream.fileno()) # py2
+            mode = stream.mode
+            if mode in ['r','w']:
+                mode = mode+'b'
+            elif mode in ['rb','wb']:
+                pass
+            else:
+                raise Exception("Unexpected stream mode: {0}".format(mode))
+
+            rc = io.open(stream.fileno(), mode=mode) # py2
             if hasattr(rc, 'read'):
                 rc.read1 = rc.read # this is hacky but it seems to work
             return rc
