@@ -22,7 +22,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.1dev6',
+    version='0.1dev7',
 
     description='Client for the ondevice.io service',
     long_description=long_description,
