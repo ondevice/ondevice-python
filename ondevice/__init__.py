@@ -46,7 +46,7 @@ def parseArgs(args, aliases={}):
         if opt.startswith('--'):
             opt = opt[2:]
         elif opt.startswith('-'):
-            opt = opts[1:]
+            opt = opt[1:]
 
         equalsPos = opt.find('=')
         val = None
