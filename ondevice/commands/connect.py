@@ -18,7 +18,7 @@ Examples:
 from ondevice import modules
 
 
-def run(module, dev, auth=None, *args):
+def run(module, dev, *args):
     client = modules.loadClient(devId=dev, protocolStr=module, args=args)
     client.startRemote()
 
