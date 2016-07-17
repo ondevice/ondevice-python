@@ -36,7 +36,7 @@ class Endpoint:
         self._conn.run()
 
 class TunnelClient(Endpoint):
-    def __init__(self, *args, devId, protocol, svcName):
+    def __init__(self, devId, protocol, svcName, *args):
         self._args = args
 
         self._params = { 'devId': devId, 'svcName': svcName }
@@ -74,13 +74,13 @@ def load(name):
         mod = imp.load_source('usermodules.{0}'.format(name), os.path.join(userPath, '{0}.py'.format(name)))
         return mod
 
-def loadClient(*args, devId, protocolStr):
+def loadClient(devId, protocolStr, *args):
     modName, suffix, svcName = _parseProtocolString(protocolStr)
     if svcName == None:
         svcName = modName
-    return loadClient2(*args, devId=devId, modName=modName, suffix=suffix, svcName=svcName)
+    return loadClient2(devId=devId, modName=modName, suffix=suffix, svcName=svcName, *args)
 
-def loadClient2(*args, devId, modName, suffix, svcName):
+def loadClient2(devId, modName, suffix, svcName, *args):
     className = 'Client'
 
     if suffix != None:
@@ -90,7 +90,7 @@ def loadClient2(*args, devId, modName, suffix, svcName):
     if not hasattr(mod, className):
         raise Exception("Module '{0}' doesn't have a '{1}' endpoint".format(modName, suffix))
     clazz = getattr(mod, className)
-    rc = clazz(*args, devId=devId, protocol=modName, svcName=svcName)
+    rc = clazz(devId=devId, protocol=modName, svcName=svcName, *args)
     rc._params.update({'protocol': modName, 'endpoint': suffix })
     return rc
 

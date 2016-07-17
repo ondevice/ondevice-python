@@ -16,11 +16,10 @@ Examples:
 """
 
 from ondevice import modules
-from ondevice.core.session import Session
 
 
-def run(module, dev, *args, auth=None):
-    client = modules.loadClient(*args, devId=dev, protocolStr=module)
+def run(module, dev, auth=None, *args):
+    client = modules.loadClient(devId=dev, protocolStr=module, *args)
     client.startRemote()
 
     args = ()
