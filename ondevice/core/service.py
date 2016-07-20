@@ -24,6 +24,12 @@ def add(name, protocol, hidden=False, **options):
 
     config.setValue('services', name, json.dumps(data))
 
+def exists(name):
+    from ondevice import modules
+    svcs = listServices()
+    if name in svcs:
+        return modules.exists(svcs[name]['protocol'])
+
 def get(name):
     return listServices()[name]
 
