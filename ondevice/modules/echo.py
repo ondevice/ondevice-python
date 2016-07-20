@@ -21,7 +21,7 @@ info = 'Simple test module that sends back what it receives'
 encrypted = False
 
 class Client(TunnelClient):
-    def gotData(self, data):
+    def onMessage(self, data):
         stream = self.getConsoleBuffer(sys.stdout)
         stream.write(b"> "+data)
         stream.flush()
@@ -41,5 +41,5 @@ class Service(TunnelService):
     def runLocal(self):
         pass
 
-    def gotData(self, data):
+    def onMessage(self, data):
         self._conn.send(data)

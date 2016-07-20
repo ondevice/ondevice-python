@@ -37,8 +37,8 @@ class Endpoint:
         self._localThread = Thread(target = self.runLocal, args=args)
         self._localThread.start()
 
-    def gotData(self, data):
-        raise Exception("This module doesn't impolement the 'gotData' endpoint!?!")
+    def onMessage(self, data):
+        raise Exception("This module doesn't impolement the 'onMessage' endpoint!?!")
 
     def runRemote(self):
         self._conn.run()
@@ -48,7 +48,7 @@ class TunnelClient(Endpoint):
         self._args = args
 
         self._params = { 'devId': devId, 'svcName': svcName }
-        self._conn = Connection(devId, protocol, svcName, onMessage=self.gotData, onEOF=self.onEOF)
+        self._conn = Connection(devId, protocol, svcName, onMessage=self.onMessage, onEOF=self.onEOF)
         self._conn.onEOF = self.onEOF
 
     def onEOF(self):
@@ -56,7 +56,7 @@ class TunnelClient(Endpoint):
 
 class TunnelService(Endpoint):
     def __init__(self, brokerUrl, tunnelId, devId):
-        self._conn = Response(brokerUrl, tunnelId, devId, onMessage=self.gotData)
+        self._conn = Response(brokerUrl, tunnelId, devId, onMessage=self.onMessage, onEOF=self.onEOF)
 
 def listModules():
     knownNames = []

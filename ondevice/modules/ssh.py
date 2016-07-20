@@ -47,8 +47,8 @@ class Client(TunnelClient):
         pass # we don't need a remote connection; Client_tunnel does that for us
 
 class Client_tunnel(TunnelClient):
-    def gotData(self, data):
-        logging.debug("gotData: %s", repr(data))
+    def onMessage(self, data):
+        logging.debug("onMessage: %s", repr(data))
         stream = self.getConsoleBuffer(sys.stdout)
         stream.write(data)
         stream.flush()
@@ -84,6 +84,6 @@ class Service(TunnelService):
                 self._conn.sendEOF()
                 return
 
-    def gotData(self, data):
-        logging.debug("gotData: %s", repr(data))
+    def onMessage(self, data):
+        logging.debug("onMessage: %s", repr(data))
         self._sock.send(data)
