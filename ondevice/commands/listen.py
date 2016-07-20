@@ -2,30 +2,14 @@
 Starts the ondevice daemon in the foreground.
 """
 
-from ondevice.core import config
-from ondevice.core.session import Session
-
-import logging
-import sys
-import time
+from ondevice.core import session
 
 def run(__sentinel__=None, auth=None):
     # TODO properly implement --user and --auth param support
     if __sentinel__ != None:
         raise Exception("Too many arguments")
 
-    retryDelay = 10
-
-    while (True):
-        # TODO think about moving the loop into Session
-        # TODO right now it's impossible to reuse Session objects (since the URL's set in the constructor but the devId might change afterwards)
-        session = Session()
-        if session.run() == True:
-            retryDelay = 10
-
-        logging.info("Lost connection, retrying in %ds", retryDelay)
-        time.sleep(retryDelay)
-        retryDelay = min(900, retryDelay*1.5)
+    session.runForever()
 
 def usage():
     return "[dev=devId]", "Starts the ondevice daemon in the foreground"

@@ -3,17 +3,20 @@ from ondevice import modules
 
 import json
 import logging
-import threading
 import traceback
-import sys
+import time
 
 class Session(sock.Socket):
 	""" Connects to the ondevice service """
-	def __init__(self):
+	def __init__(self, sid=None):
+		self._abortMsg = None
+
 		devId = config.getDeviceId()
 		kwargs = {}
 		if devId != None:
 			kwargs['id'] = devId
+		if sid != None:
+			kwargs['sid'] = sid
 
 		auth = (config.getDeviceUser(), config.getDeviceAuth())
 		sock.Socket.__init__(self, '/serve', auth=auth, **kwargs)
@@ -26,8 +29,8 @@ class Session(sock.Socket):
 				assert not self._connectionSucceeded
 				logging.info("Connection established, online as '%s'", msg.name)
 				config.setDeviceName(msg.name)
-				self._devId = msg.devId
-				self._sid = msg.sid
+				self.devId = msg.devId
+				self.sid = msg.sid
 				config.setDeviceId(msg.devId)
 
 				for name, svc in service.listServices().items():
@@ -67,6 +70,13 @@ class Session(sock.Socket):
 			traceback.print_exc()
 			raise e
 
+	def _onError(self, ws, error):
+		if type(error) is KeyboardInterrupt:
+			self._abortMsg = "Keyboard interrupt, exiting"
+			return
+
+		sock.Socket._onError(self, ws, error)
+
 	def run(self):
 		self._connectionSucceeded = False
 		sock.Socket.run(self)
@@ -76,3 +86,24 @@ class Session(sock.Socket):
 		data = json.dumps(msg)
 		logging.debug('>> %s', data)
 		self._ws.send(data)
+
+
+def runForever():
+	""" Run the device endpoint in a loop (until it gets aborted) """
+	retryDelay = 10
+	sid = None
+
+	while (True):
+		# TODO right now it's impossible to reuse Session objects (since the URL's set in the constructor but the devId might change afterwards)
+		session = Session(sid=sid)
+		if session.run() == True:
+			retryDelay = 10
+		if session._abortMsg != None:
+			logging.info(session._abortMsg)
+			break
+
+		else:
+			logging.info("Lost connection, retrying in %ds", retryDelay)
+			time.sleep(retryDelay)
+			retryDelay = min(900, retryDelay*1.5)
+			sid = session.sid
