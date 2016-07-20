@@ -58,6 +58,9 @@ class TunnelService(Endpoint):
     def __init__(self, brokerUrl, tunnelId, devId):
         self._conn = Response(brokerUrl, tunnelId, devId, onMessage=self.onMessage, onEOF=self.onEOF)
 
+def exists(name):
+    return name in listModules()
+
 def listModules():
     knownNames = []
     for importer, modName, isPkg in pkgutil.iter_modules(__path__):
