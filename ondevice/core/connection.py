@@ -7,6 +7,7 @@ import sys
 class TunnelSocket(sock.Socket):
     """ Base class for Connection and Response """
     def __init__(self, *args, **kwargs):
+        self._eof = False
         self._lock = threading.Lock()
         self._lock.acquire() # lock initially (will be released once the server confirms the connection)
         sock.Socket.__init__(self, *args, **kwargs)
@@ -53,6 +54,12 @@ class TunnelSocket(sock.Socket):
     def _onConnected(self):
         self._lock.release()
 
+    def _onClose(self, ws):
+        if not self._eof:
+            self.onEOF()
+
+        sock.Socket._onClose(self, ws)
+
     def _parseParams(self, params):
         """ Parse parameters in the format 'par1=val1,par2=val2' """
         rc = {}
@@ -73,10 +80,12 @@ class TunnelSocket(sock.Socket):
         return hdr, msg
 
     def onEOF(self):
-        if hasattr(self, '_eofCB'):
-            self._eofCB()
-        else:
-            raise Exception("No one implemented EOF!?!")
+        if self._eof == False:
+            self._eof = True
+            if hasattr(self, '_eofCB'):
+                self._eofCB()
+            else:
+                raise Exception("No one implemented EOF!?!")
 
     def onError(self, code, msg):
         raise Exception("Error (code={0}): {1}".format(code, msg))
