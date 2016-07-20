@@ -45,7 +45,7 @@ class Session(sock.Socket):
 			elif msg._type == 'connect':
 				logging.info("Got '%s' request by user %s (ip: %s)", msg.service, msg.clientUser, msg.clientIp)
 				try:
-					svc = modules.getService(msg, self._devId)
+					svc = modules.getService(msg, self.devId)
 
 					svc.startRemote()
 					svc.startLocal()
