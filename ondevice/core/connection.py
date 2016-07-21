@@ -76,9 +76,10 @@ class TunnelSocket(sock.Socket):
     def _onClose(self, ws):
         if not self._eof:
             self.onEOF()
-        self._callListener('onClose')
-
-        sock.Socket._onClose(self, ws)
+        if self._hasListener('onClose'):
+            self._callListener('onClose')
+        else:
+            sock.Socket._onClose(self, ws)
 
     def _parseParams(self, params):
         """ Parse parameters in the format 'par1=val1,par2=val2' """
