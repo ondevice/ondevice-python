@@ -67,7 +67,8 @@ class TunnelSocket(sock.Socket):
 
     def _onConnected(self):
         self._lock.release()
-        self._callListener('onConnected')
+        if self._hasListener('onConnected'):
+            self._callListener('onConnected')
 
     def _onClose(self, ws):
         if not self._eof:
