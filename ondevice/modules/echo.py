@@ -21,6 +21,12 @@ info = 'Simple test module that sends back what it receives'
 encrypted = False
 
 class Client(TunnelClient):
+    def onClose(self):
+        self.getConsoleBuffer(sys.stdin).close()
+
+    def onEOF(self):
+        self.getConsoleBuffer(sys.stdout).close()
+
     def onMessage(self, data):
         stream = self.getConsoleBuffer(sys.stdout)
         stream.write(b"> "+data)
