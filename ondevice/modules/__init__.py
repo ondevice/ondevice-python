@@ -3,6 +3,7 @@ from ondevice.core.connection import Connection, Response
 
 import imp
 import io
+import logging
 import os
 import pkgutil
 import re
@@ -59,6 +60,9 @@ class TunnelClient(Endpoint):
 class TunnelService(Endpoint):
     def __init__(self, brokerUrl, tunnelId, devId):
         self._conn = Response(brokerUrl, tunnelId, devId, listener=self)
+
+    def onClose(self):
+        logging.info("Connection closed (bytes sent=%d, received=%d)", self._conn.bytesSent, self._conn.bytesReceived)
 
 def exists(name):
     return name in listModules()

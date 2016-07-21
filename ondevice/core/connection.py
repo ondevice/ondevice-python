@@ -12,6 +12,8 @@ class TunnelSocket(sock.Socket):
         self._eof = False
         self._lock = threading.Lock()
         self._lock.acquire() # lock initially (will be released once the server confirms the connection)
+        self.bytesReceived = 0
+        self.bytesSent = 0
         sock.Socket.__init__(self, *args, **kwargs)
 
     def _callListener(self, method, *args, **kwargs):
@@ -27,6 +29,7 @@ class TunnelSocket(sock.Socket):
             and callable(getattr(self.listener, method)))
 
     def _onMessage(self, ws, messageData):
+        self.bytesReceived += len(messageData)
         colonPos = messageData.find(b':')
         if colonPos < 0:
             raise Exception('Missing message header')
@@ -115,6 +118,7 @@ class TunnelSocket(sock.Socket):
             logging.debug('{0} >> {1} ({2} bytes)'.format('data', msg, len(msg)))
             data = b'data:'+msg
 
+            self.bytesSent += len(data)
             self._ws.send(data, 2) # OPCODE_BINARY
 
     def sendEOF(self):
