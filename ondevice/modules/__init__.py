@@ -38,7 +38,7 @@ class Endpoint:
         self._localThread.start()
 
     def onMessage(self, data):
-        raise Exception("This module doesn't impolement the 'onMessage' endpoint!?!")
+        raise Exception("This module doesn't implement the 'onMessage' endpoint!?!")
 
     def runRemote(self):
         self._conn.run()
