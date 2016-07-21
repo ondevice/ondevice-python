@@ -48,15 +48,17 @@ class TunnelClient(Endpoint):
         self._args = args
 
         self._params = { 'devId': devId, 'svcName': svcName }
-        self._conn = Connection(devId, protocol, svcName, onMessage=self.onMessage, onEOF=self.onEOF)
-        self._conn.onEOF = self.onEOF
+        self._conn = Connection(devId, protocol, svcName, listener=self)
+
+    def onClose(self):
+        raise Exception("onClose not implemented!")
 
     def onEOF(self):
-        raise Exception("EOF not implemented!")
+        raise Exception("onEOF not implemented!")
 
 class TunnelService(Endpoint):
     def __init__(self, brokerUrl, tunnelId, devId):
-        self._conn = Response(brokerUrl, tunnelId, devId, onMessage=self.onMessage, onEOF=self.onEOF)
+        self._conn = Response(brokerUrl, tunnelId, devId, listener=self)
 
 def exists(name):
     return name in listModules()

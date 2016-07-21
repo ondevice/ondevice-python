@@ -7,10 +7,24 @@ import sys
 class TunnelSocket(sock.Socket):
     """ Base class for Connection and Response """
     def __init__(self, *args, **kwargs):
+        if 'listener' in kwargs:
+            self.listener = kwargs.pop('listener')
         self._eof = False
         self._lock = threading.Lock()
         self._lock.acquire() # lock initially (will be released once the server confirms the connection)
         sock.Socket.__init__(self, *args, **kwargs)
+
+    def _callListener(self, method, *args, **kwargs):
+        if self.listener != None:
+            if hasattr(self.listener, method):
+                getattr(self.listener, method)(*args, **kwargs)
+            else:
+                raise Exception("missing callback: {0}".format(method))
+
+    def _hasListener(self, method):
+        return (self.listener != None
+            and hasattr(self.listener, method)
+            and callable(getattr(self.listener, method)))
 
     def _onMessage(self, ws, messageData):
         colonPos = messageData.find(b':')
@@ -25,7 +39,7 @@ class TunnelSocket(sock.Socket):
         logging.debug('{0} << {1} ({2} bytes)'.format(msgType, repr(messageData), len(messageData)))
 
         if msgType == b'data':
-            return self._messageCB(messageData)
+            return self._callListener('onMessage', messageData)
         elif msgType == b'meta':
             msgType, messageData = self._takeHeader(messageData)
 
@@ -53,10 +67,12 @@ class TunnelSocket(sock.Socket):
 
     def _onConnected(self):
         self._lock.release()
+        self._callListener('onConnected')
 
     def _onClose(self, ws):
         if not self._eof:
             self.onEOF()
+        self._callListener('onClose')
 
         sock.Socket._onClose(self, ws)
 
@@ -82,13 +98,13 @@ class TunnelSocket(sock.Socket):
     def onEOF(self):
         if self._eof == False:
             self._eof = True
-            if hasattr(self, '_eofCB'):
-                self._eofCB()
-            else:
-                raise Exception("No one implemented EOF!?!")
+            self._callListener('onEOF')
 
     def onError(self, code, msg):
-        raise Exception("Error (code={0}): {1}".format(code, msg))
+        if self._hasListener('onError'):
+            self._callListener('onError', code, msg)
+        else:
+            raise Exception("Error (code={0}): {1}".format(code, msg))
 
     def send(self, msg):
         if (type(msg) != bytes):
@@ -106,20 +122,16 @@ class TunnelSocket(sock.Socket):
             self._ws.send(b'meta:EOF', 2) #OPCODE_BINARY
 
 class Connection(TunnelSocket):
-    def __init__(self, dev, protocol, service, onMessage=None, onEOF=None):
-        self._messageCB = onMessage
-        self._eofCB = onEOF
-
+    def __init__(self, dev, protocol, service, listener=None):
         user,dev = parseDeviceName(dev)
         auth = config.getClientAuth(user)
-        TunnelSocket.__init__(self, '/connect', auth=auth, dev=dev, protocol=protocol, service=service)
+        TunnelSocket.__init__(self, '/connect', auth=auth, dev=dev, protocol=protocol, service=service, listener=listener)
 
 
 class Response(TunnelSocket):
-    def __init__(self, broker, tunnelId, dev, onMessage=None):
+    def __init__(self, broker, tunnelId, dev, listener=None):
         auth = (config.getDeviceUser(), config.getDeviceAuth())
-        TunnelSocket.__init__(self, '/accept', tunnel=tunnelId, dev=dev, baseUrl=broker, auth=auth)
-        self._messageCB = onMessage
+        TunnelSocket.__init__(self, '/accept', tunnel=tunnelId, dev=dev, baseUrl=broker, listener=listener, auth=auth)
 
     def onEOF(self):
         """ Got an EOF from the remote host -> closing the websocket """
