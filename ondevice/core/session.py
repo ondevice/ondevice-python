@@ -6,6 +6,7 @@ import logging
 import traceback
 import time
 
+
 class Session(sock.Socket):
 	""" Connects to the ondevice service """
 	def __init__(self, sid=None):
@@ -46,6 +47,14 @@ class Session(sock.Socket):
 			elif msg._type == 'connect':
 				logging.info("Got '%s' request by user %s (ip: %s)", msg.service, msg.clientUser, msg.clientIp)
 				try:
+					errTpl = {'_type': 'connectError', 'tunnelId': msg.tunnelId}
+					if not service.exists(msg.service):
+						return self.sendConnError(404, "Service '{0}' not found".format(msg.service), msg.tunnelId)
+					proto = service.get(msg.service)['protocol']
+					if msg.protocol != proto:
+						return self.sendConnError(400, "Protocol mismatch (expected={0}, actual={1})".format(proto, msg.protocol), msg.tunnelId)
+					elif not modules.exists(proto):
+						return self.sendConnError(404, "Module '{0}' not found!".format(msg.protocol), msg.tunnelId)
 					svc = modules.getService(msg, self.devId)
 
 					svc.startRemote()
@@ -88,6 +97,12 @@ class Session(sock.Socket):
 		logging.debug('>> %s', data)
 		self._ws.send(data)
 
+	def send2(self, **kwargs):
+		self.send(kwargs)
+
+	def sendConnError(self, code, msg, tunnelId):
+		logging.error("Connection error: {0} (code {1})".format(msg, code))
+		self.send2(_type='connectError', tunnelId=tunnelId, code=code, msg=msg)
 
 def runForever():
 	""" Run the device endpoint in a loop (until it gets aborted) """
