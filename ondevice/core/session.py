@@ -10,6 +10,7 @@ class Session(sock.Socket):
 	""" Connects to the ondevice service """
 	def __init__(self, sid=None):
 		self._abortMsg = None
+		self.sid = sid
 
 		devId = config.getDeviceId()
 		kwargs = {}
