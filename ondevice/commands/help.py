@@ -19,13 +19,24 @@ import sys
 def run(cmdName=None):
     if cmdName == None:
         print("USAGE: {0} <command> [args]\n".format(sys.argv[0]))
-        print("Commands:")
 
+        cmds = {'client':[], 'device':[], None:[]}
+        groupNames = {'client': 'Client commands', 'device': 'Device commands', None: 'Other commands'}
         for cmd in commands.listCommands():
             usage = commands.usage(cmd)
             usage.setdefault('cmd', cmd)
             usage.setdefault('args', '')
-            print("\t{cmd} {args}\n\t\t{msg}".format(**usage))
+            group = usage.setdefault('group', None)
+
+            if group not in cmds.keys():
+                group = None
+            cmds[group].append(usage)
+
+        for group in ['device', 'client', None]:
+            print("- {0}:".format(groupNames[group]))
+            for usage in cmds[group]:
+                print("    {cmd} {args}\n\t{msg}".format(**usage))
+            print('')
     else:
         cmd = commands.load(cmdName)
         usage = commands.usage(cmdName)
