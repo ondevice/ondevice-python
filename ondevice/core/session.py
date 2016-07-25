@@ -109,6 +109,16 @@ class Session(sock.Socket):
 
 def runForever():
 	""" Run the device endpoint in a loop (until it gets aborted) """
+	lock = filelock.FileLock(config._getConfigPath('ondevice.lock'))
+	try:
+		with lock.acquire(timeout=0):
+			_runForever()
+	except filelock.Timeout:
+		logging.error("There's already another instance of `ondevice daemon` running!")
+		sys.exit(1)
+
+def _runForever():
+	""" runForever() internals without the lock file mechanism """
 	retryDelay = 10
 	sid = None
 
