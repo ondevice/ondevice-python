@@ -1,22 +1,22 @@
 """Manage device properties
 
-- {cmd} dev <devName> props <devName> [key]... - List a device's properties
-- {cmd} dev <devName> set <devName> <key>=<value>... - set one or more device properties
-- {cmd} dev <devName> rm <key>... - remove specific device properties
+- {cmd} device <devName> props <devName> [key]... - List a device's properties
+- {cmd} device <devName> set <devName> <key>=<value>... - set one or more device properties
+- {cmd} device <devName> rm <key>... - remove specific device properties
 
 Examples:
-$ {cmd} dev me/someDevice props
+$ {cmd} device me/someDevice props
 foo=bar
 abc=123
 
-$ {cmd} dev me/someDevice props foo hello
+$ {cmd} device me/someDevice props foo hello
 foo=bar
 hello=
 
-$ {cmd} dev me/someDevice rm abc
+$ {cmd} device me/someDevice rm abc
 foo=bar
 
-$ {cmd} dev me/someDevice set hello=world answer=42
+$ {cmd} device me/someDevice set hello=world answer=42
 foo=bar
 hello=world
 answer=42
