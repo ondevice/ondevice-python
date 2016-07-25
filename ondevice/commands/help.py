@@ -27,10 +27,12 @@ def run(cmdName=None):
             usage.setdefault('cmd', cmd)
             usage.setdefault('args', '')
             group = usage.setdefault('group', None)
+            hidden = usage.setdefault('hidden', False)
 
             if group not in cmds.keys():
                 group = None
-            cmds[group].append(usage)
+            if not hidden:
+                cmds[group].append(usage)
 
         for group in ['device', 'client', None]:
             print("- {0}:".format(groupNames[group]))

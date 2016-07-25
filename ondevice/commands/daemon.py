@@ -1,5 +1,8 @@
 """
 Run the ondevice daemon.
+
+See also: `ondevice help listen` (deprecated variant of `ondevice daemon`
+that stays in the foreground)
 """
 
 usage = {
