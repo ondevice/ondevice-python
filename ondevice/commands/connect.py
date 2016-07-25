@@ -1,8 +1,10 @@
 """
 Attempts to initiate a connection to a device's service.
 
-This is actually the default command (if 'module' is a known module), so you can
-skip it if you want to.
+There is actually a shorthand. Instead of `ondevice connect <module> ...` you
+can write:
+
+    `ondevice :<module> ...`
 
 Arguments:
 - module:   The module to use for the connection (e.g. 'ssh')
@@ -11,8 +13,8 @@ Arguments:
 
 Examples:
     {cmd} connect ssh someDevice - connect to the 'ssh' service of 'someDevice'
-    {cmd} ssh someDevice - same as the above (i.e. omitted 'connect')
-    {cmd} ssh@otherSsh someDevice - connect to the 'otherSsh' service using ssh
+    {cmd} :ssh someDevice - same as the above (i.e. omitted 'connect')
+    {cmd} :ssh@otherSsh someDevice - connect to the 'otherSsh' service using ssh
 """
 
 usage = {
