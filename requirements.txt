@@ -1,1 +1,4 @@
+filelock
+python-daemon >= 2.1.1
+six
 websocket-client >= 0.37.0
