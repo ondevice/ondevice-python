@@ -15,6 +15,12 @@ Examples:
     {cmd} ssh@otherSsh someDevice - connect to the 'otherSsh' service using ssh
 """
 
+usage = {
+    'args': '<module> <dev> [svcName]',
+    'msg': 'Connects to a service on the specified device',
+    'group': 'client'
+}
+
 from ondevice import modules
 
 
@@ -25,6 +31,3 @@ def run(module, dev, *args):
     args = ()
     if hasattr(client, '_args'): args = client._args
     client.runLocal(*args) # don't run in a background thread
-
-def usage():
-    return "<module> <dev> [svcName]", "Connects to a service on the specified device"

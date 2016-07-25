@@ -22,11 +22,19 @@ $ {cmd} service rm echo -f
 $ {cmd} services add echo otherEcho --hidden
 """
 
+usage = {
+    'args': '[add/rm] [args...]',
+    'msg': 'Manages services',
+    'group': 'device'
+}
+
 from ondevice.core import service
+
 
 def addService(name, protocol):
     # TODO parse additional arguments ('--hidden', ...)
     service.add(name, protocol)
+
 
 def listServices():
     for name, info in service.listServices().items():
@@ -47,6 +55,3 @@ def run(subcmd='list', *args):
         rmService(*args)
     else:
         raise Exception("Unsupported subcommand: {0}".format(subcmd))
-
-def usage():
-    return "[add/rm] [args...]", "Manages services"

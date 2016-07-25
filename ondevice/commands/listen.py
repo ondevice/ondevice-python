@@ -2,6 +2,12 @@
 Starts the ondevice daemon in the foreground.
 """
 
+usage = {
+    'args': '[dev=devId]',
+    'msg': 'Starts the ondevice daemon in the foreground',
+    'group': 'device'
+}
+
 from ondevice.core import session
 
 def run(__sentinel__=None, auth=None):
@@ -10,6 +16,3 @@ def run(__sentinel__=None, auth=None):
         raise Exception("Too many arguments")
 
     session.runForever()
-
-def usage():
-    return "[dev=devId]", "Starts the ondevice daemon in the foreground"

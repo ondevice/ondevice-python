@@ -22,6 +22,13 @@ hello=world
 answer=42
 """
 
+usage = {
+    'args': '<devName> props/set/rm [args]',
+    'msg': 'Manage device properties',
+    'group': 'client'
+}
+
+
 from ondevice.core import sock
 
 
@@ -57,6 +64,3 @@ def run(devName, subcmd, *args):
         propRm(devName, *args)
     else:
         raise Exception("Unsupported subcommand: {0}".format(subcmd))
-
-def usage():
-    return "<devName> props/set/rm [args]", "Manage device properties"

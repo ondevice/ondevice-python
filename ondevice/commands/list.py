@@ -8,9 +8,15 @@ foo/dev1    OFFLINE (for 1h)    1.2.3.4     0.1dev6     Device 1
 foo/raspi   ONLINE (for 2d)     1.2.3.5     0.1dev6     Raspberry PI at home
 """
 
+usage = {
+    'msg': 'Displays detailed information on your devices',
+    'group': 'client'
+}
+
 from ondevice.core import sock
 
 import json
+
 
 def run(*args):
     resp = sock.apiGET('/devices')
@@ -30,6 +36,3 @@ def run(*args):
             if not 'name' in dev:
                 dev['name'] = ''
             print(fmt.format(**dev))
-
-def usage():
-    return "", "Displays detailed information on your devices"

@@ -15,4 +15,7 @@ def run(cmdName, *args, **opts):
 
 def usage(cmdName):
     cmd = load(cmdName)
-    return cmd.usage()
+    if callable(cmd.usage):
+        args, msg = cmd.usage()
+        return {'args': args, 'msg': msg}
+    else: return cmd.usage

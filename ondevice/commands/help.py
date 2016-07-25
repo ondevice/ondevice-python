@@ -7,6 +7,11 @@ Examples:
     {cmd} help help     shows this message
 """
 
+usage = {
+    'args': '[cmd]',
+    'msg': 'lists available commands or prints detailed help for one'
+}
+
 from ondevice import commands
 
 import sys
@@ -17,13 +22,14 @@ def run(cmdName=None):
         print("Commands:")
 
         for cmd in commands.listCommands():
-            args, msg = commands.usage(cmd)
-            print("\t{0} {1}\n\t\t{2}".format(cmd, args, msg))
+            usage = commands.usage(cmd)
+            usage.setdefault('cmd', cmd)
+            usage.setdefault('args', '')
+            print("\t{cmd} {args}\n\t\t{msg}".format(**usage))
     else:
         cmd = commands.load(cmdName)
-        args, msg = cmd.usage()
-        print('{0} {1} {2}'.format(sys.argv[0], cmdName, args))
+        usage = commands.usage(cmdName)
+        usage.setdefault('cmd', cmdName)
+        usage.setdefault('args', '')
+        print('{0} {cmd} {args}'.format(sys.argv[0], **usage))
         print(cmd.__doc__.format(cmd=sys.argv[0]))
-
-def usage():
-    return "[cmd]", "lists available commands or prints detailed help for one"

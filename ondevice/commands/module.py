@@ -14,13 +14,19 @@ data in certain protocol through the ondevice.io network.
 #ondevice)
 #"""
 
+usage = {
+    'msg': 'Lists installed modules'
+}
+
 from ondevice import modules
 
 import sys
 
+
 def moduleInfo(name):
     mod = modules.load(name)
     print(mod.__doc__)
+
 
 def listModules():
     for name in modules.listModules():
@@ -30,6 +36,7 @@ def listModules():
             info = mod.info
         print("{0}\t{1}".format(name, info))
 
+
 def run(subcmd='list', *args):
     if subcmd == 'info':
         return moduleInfo(*args)
@@ -37,5 +44,3 @@ def run(subcmd='list', *args):
         return listModules(*args)
     else:
         raise Exception("Unknown subcommand: {0}".format(subcmd))
-def usage():
-    return "", "Lists installed modules"
