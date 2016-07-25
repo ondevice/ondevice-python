@@ -1,8 +1,11 @@
 from ondevice.core import config, sock, service
 from ondevice import modules
 
+import filelock
 import json
 import logging
+import os
+import sys
 import traceback
 import time
 
@@ -109,17 +112,24 @@ def runForever():
 	retryDelay = 10
 	sid = None
 
-	while (True):
-		# TODO right now it's impossible to reuse Session objects (since the URL's set in the constructor but the devId might change afterwards)
-		session = Session(sid=sid)
-		if session.run() == True:
-			retryDelay = 10
-		if session._abortMsg != None:
-			logging.info(session._abortMsg)
-			break
+	pidfile = config._getConfigPath('ondevice.pid')
+	with open(pidfile, 'w') as f:
+		f.write(str(os.getpid()))
 
-		else:
-			logging.info("Lost connection, retrying in %ds", retryDelay)
-			time.sleep(retryDelay)
-			retryDelay = min(900, retryDelay*1.5)
-			sid = session.sid
+	try:
+		while (True):
+			# TODO right now it's impossible to reuse Session objects (since the URL's set in the constructor but the devId might change afterwards)
+			session = Session(sid=sid)
+			if session.run() == True:
+				retryDelay = 10
+			if session._abortMsg != None:
+				logging.info(session._abortMsg)
+				break
+
+			else:
+				logging.info("Lost connection, retrying in %ds", retryDelay)
+				time.sleep(retryDelay)
+				retryDelay = min(900, retryDelay*1.5)
+				sid = session.sid
+	finally:
+		os.unlink(pidfile)
