@@ -17,7 +17,7 @@ Examples:
 
 usage = {
     'args': '<module> <dev> [svcName]',
-    'msg': 'Connects to a service on the specified device',
+    'msg': 'Connects to a service on the specified device (shorthand: `:<module>`)',
     'group': 'client'
 }
 

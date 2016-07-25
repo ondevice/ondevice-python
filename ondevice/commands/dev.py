@@ -24,7 +24,7 @@ answer=42
 
 usage = {
     'args': '<devName> props/set/rm [args]',
-    'msg': 'Manage device properties',
+    'msg': "Fetch/Manage a device's information",
     'group': 'client'
 }
 

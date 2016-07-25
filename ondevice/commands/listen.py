@@ -3,8 +3,7 @@ Starts the ondevice daemon in the foreground.
 """
 
 usage = {
-    'args': '[dev=devId]',
-    'msg': 'Starts the ondevice daemon in the foreground',
+    'msg': 'Like `daemon`, but in the foreground',
     'group': 'device'
 }
 
