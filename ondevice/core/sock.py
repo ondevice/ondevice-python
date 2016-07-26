@@ -108,8 +108,11 @@ def apiPOST(endpoint, params={}, data=None):
 def apiRequest(method, endpoint, params={}, data=None):
     # TODO implement URL params support
     auth = config.getClientAuth()
-    basicAuth = base64.b64encode("{0}:{1}".format(*auth).encode('ascii')).decode('ascii')
-    headers = { 'Authorization' : 'Basic {0}'.format(basicAuth)}
+    headers = {}
+
+    if auth != None:
+        basicAuth = base64.b64encode("{0}:{1}".format(*auth).encode('ascii')).decode('ascii')
+        headers['Authorization'] = 'Basic {0}'.format(basicAuth)
 
     # parse data:
     if data != None:

@@ -44,7 +44,10 @@ def getClientAuth(tgtUser=None):
             userKey = 'auth_{0}'.format(tgtUser)
             if hasValue('client', userKey):
                 return tgtUser, getValue('client', userKey)
-    return clientUser, getValue('client', 'auth')
+    clientKey = getValue('client', 'auth')
+    if clientUser != None and clientKey != None:
+        return clientUser, getValue('client', 'auth')
+    else: return None
 
 def getDeviceAuth(): return getValue('device', 'auth')
 def getDeviceId(): return getValue('device', 'id')
