@@ -5,7 +5,34 @@ except ImportError:
 
 import os
 
+class Overrides:
+    def __init__(self):
+        self.data = {}
+
+    def __contains__(self, key):
+        return key in self.data
+
+    def clear(self):
+        self.data = {}
+
+    def get(self, section, key, default=None):
+        if not (section,key) in self.data:
+            return default
+        return self.data[(section,key)]
+
+    def items(self):
+        for key, value in self.data.items():
+            yield key[0], key[1], value
+
+    def put(self, section, key, value):
+        self.data[(section,key)] = value
+
+    def remove(self, section, key):
+        if (section, key) in self.data:
+            del(self.data[(section,key)])
+
 _config = None
+overrides = Overrides()
 
 def addSection(name):
     return _getConfig(True).add_section(name)
@@ -77,6 +104,9 @@ def _getConfigPath(filename):
     return os.path.join(configDir, filename)
 
 def getValue(section, key, default=None):
+    if (section,key) in overrides:
+        return overrides.get(section, key, default)
+
     cfg = _getConfig()
     if cfg.has_option(section, key):
         return cfg.get(section, key)
@@ -92,6 +122,7 @@ def remove(section, key):
 
 def setValue(section, key, value):
     cfg = _getConfig(True)
+    overrides.remove(section, key)
     cfg.set(section, key, value)
     _saveConfig()
 
