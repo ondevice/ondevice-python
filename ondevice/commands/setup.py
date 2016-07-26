@@ -27,7 +27,12 @@ def setupKeys():
     # TODO check if the config file already has API keys (and ask if the user really wants to overwrite them)
     user,key = queryCredentials()
 
-    resp = sock.apiPOST('/register', data={'user': user, 'key':key})
+    config.overrides.put('client', 'user', user)
+    config.overrides.put('client', 'auth', key)
+
+    resp = sock.apiGET('/keyInfo')
+    config.overrides.clear() # just to be sure, reset to default authentication
+
     roles = resp['roles']
 
     if 'client' in roles:
