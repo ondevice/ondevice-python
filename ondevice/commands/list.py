@@ -13,13 +13,13 @@ usage = {
     'group': 'client'
 }
 
-from ondevice.core import sock
+from ondevice.core import rest, sock
 
 import json
 
 
 def run(*args):
-    resp = sock.apiGET('/devices')
+    resp = rest.apiGET('/devices')
 
     # TODO do proper option parsing
     # TODO support '--state=on/offline' option

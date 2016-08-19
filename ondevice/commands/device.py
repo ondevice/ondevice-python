@@ -29,7 +29,7 @@ usage = {
 }
 
 
-from ondevice.core import sock
+from ondevice.core import rest, sock
 
 
 def _printProps(resp):
@@ -39,7 +39,7 @@ def _printProps(resp):
 
 
 def propList(devName, *keys):
-    resp = sock.apiGET("/device/{0}/props".format(devName))
+    resp = rest.apiGET("/device/{0}/props".format(devName))
     _printProps(resp)
 
 def propSet(devName, *values):
@@ -48,11 +48,11 @@ def propSet(devName, *values):
         k,v = val.split('=')
         props[k] = v
 
-    resp = sock.apiPOST("/device/{0}/props".format(devName), data={'props': props})
+    resp = rest.apiPOST("/device/{0}/props".format(devName), data={'props': props})
     _printProps(resp)
 
 def propRm(devName, *keys):
-    resp = sock.apiDELETE("/device/{0}/props".format(devName), data={'props': keys})
+    resp = rest.apiDELETE("/device/{0}/props".format(devName), data={'props': keys})
     _printProps(resp)
 
 def run(devName, subcmd, *args):

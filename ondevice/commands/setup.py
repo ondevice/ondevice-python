@@ -12,7 +12,7 @@ usage = {
     'msg': 'Set up the API keys for communicating with the ondevice.io service'
 }
 
-from ondevice.core import config, sock
+from ondevice.core import config, rest, sock
 
 import getpass
 import logging
@@ -30,7 +30,7 @@ def setupKeys():
     config.overrides.put('client', 'user', user)
     config.overrides.put('client', 'auth', key)
 
-    resp = sock.apiGET('/keyInfo')
+    resp = rest.apiGET('/keyInfo')
     config.overrides.clear() # just to be sure, reset to default authentication
 
     roles = resp['roles']
