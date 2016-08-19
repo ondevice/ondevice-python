@@ -41,6 +41,7 @@ class Socket:
         self._url = '{baseUrl}{endpoint}/websocket?{paramStr}'.format(**locals())
 
         headers = []
+        headers.append('User-agent: ondevice {0}'.format(ondevice.getVersion()))
         if auth != None:
             basicAuth = "{0}:{1}".format(*auth).encode('ascii')
             headers.append("Authorization: Basic {0}".format(base64.b64encode(basicAuth).decode('ascii')))
@@ -121,6 +122,7 @@ def apiRequest(method, endpoint, params={}, data=None):
         data = json.dumps(data)
         headers.update({
             'Content-type': 'application/json; charset=utf8',
+            'User-agent': 'ondevice {0}'.format(ondevice.getVersion())
         }) # TODO check if we need to also set the content-length
 
     if BASE_URL.scheme == 'ws':
