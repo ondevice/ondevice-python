@@ -1,6 +1,7 @@
 import ondevice
 from ondevice.core import config
 
+from six.moves import urllib_parse
 import base64
 import json
 import logging
@@ -12,7 +13,7 @@ try:
 except ImportError:
     from httplib import HTTPConnection, HTTPSConnection
 
-BASE_URL='wss://api.ondevice.io/v1.1'
+BASE_URL=urllib_parse.urlparse('wss://api.ondevice.io/v1.1')
 #BASE_URL='ws://localhost:8080/v1.1'
 #BASE_URL='wss://local.ondevice.io:8443/v1.1'
 class Message:
@@ -31,7 +32,7 @@ class Socket:
         # TODO make base URL configurable
         # TODO do proper URL handling
         if baseUrl == None:
-            baseUrl = BASE_URL
+            baseUrl = BASE_URL.geturl()
 
         if 'version' not in params:
             params['version'] = ondevice.getVersion()
@@ -106,6 +107,7 @@ def apiPOST(endpoint, params={}, data=None):
     return apiRequest('POST', endpoint, params=params, data=data)
 
 def apiRequest(method, endpoint, params={}, data=None):
+    global BASE_URL
     # TODO implement URL params support
     auth = config.getClientAuth()
     headers = {}
@@ -121,8 +123,10 @@ def apiRequest(method, endpoint, params={}, data=None):
             'Content-type': 'application/json; charset=utf8',
         }) # TODO check if we need to also set the content-length
 
-    # TODO use the BASE_URL
-    c = HTTPSConnection("api.ondevice.io")
+    if BASE_URL.scheme == 'ws':
+        c = HTTPConnection(BASE_URL.hostname, BASE_URL.port)
+    elif BASE_URL.scheme == 'wss':
+        c = HTTPSConnection(BASE_URL.hostname, BASE_URL.port)
     # TODO do proper URL handling (urllib)
     c.request(method, '/v1.1{0}'.format(endpoint), body=data, headers=headers)
     resp = c.getresponse()
