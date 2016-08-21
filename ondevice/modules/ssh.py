@@ -12,20 +12,17 @@ Examples:
 """
 
 
-from ondevice.core.connection import Connection, Response
-from ondevice.modules import TunnelClient, TunnelService
+from ondevice.modules import ModuleClient, ModuleService
 
-import codecs
 import logging
 import socket
 import subprocess
 import sys
-import threading
 
 info = 'Connect to your devices\' SSH server'
 encrypted = True
 
-class Client(TunnelClient):
+class Client(ModuleClient):
     """ Endpoint stub that simply invokes 'ssh' with the ProxyCommand set to
     'onclient connect ssh:tunnel' """
 
@@ -46,7 +43,7 @@ class Client(TunnelClient):
     def startRemote(self):
         pass # we don't need a remote connection; Client_tunnel does that for us
 
-class Client_tunnel(TunnelClient):
+class Client_tunnel(ModuleClient):
     def onMessage(self, data):
         logging.debug("onMessage: %s", repr(data))
         stream = self.getConsoleBuffer(sys.stdout)
@@ -68,7 +65,7 @@ class Client_tunnel(TunnelClient):
                 self._conn.sendEOF()
                 return
 
-class Service(TunnelService):
+class Service(ModuleService):
     def runLocal(self):
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # TODO make me configurable

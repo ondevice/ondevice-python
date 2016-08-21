@@ -44,7 +44,7 @@ class Endpoint:
     def runRemote(self):
         self._conn.run()
 
-class TunnelClient(Endpoint):
+class ModuleClient(Endpoint):
     def __init__(self, devId, protocol, svcName, args):
         self._args = args
 
@@ -57,7 +57,7 @@ class TunnelClient(Endpoint):
     def onEOF(self):
         raise Exception("onEOF not implemented!")
 
-class TunnelService(Endpoint):
+class ModuleService(Endpoint):
     def __init__(self, brokerUrl, tunnelId, devId):
         self._conn = Response(brokerUrl, tunnelId, devId, listener=self)
 

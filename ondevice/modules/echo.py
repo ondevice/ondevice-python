@@ -7,20 +7,16 @@ See the [yet to be written - the module infrastructure is not considered stable
 yet] module implementation guide.
 """
 
-from ondevice.core.connection import Connection, Response
-from ondevice.modules import TunnelClient, TunnelService
+from ondevice.modules import ModuleClient, ModuleService
 
-import codecs
-import six
 import sys
-import threading
 
 # short module description that will be shown when users type `ondevice modules`
 info = 'Simple test module that sends back what it receives'
 # Indicates whether or not the underlying protocol is itself encrypted.
 encrypted = False
 
-class Client(TunnelClient):
+class Client(ModuleClient):
     def onClose(self):
         self.getConsoleBuffer(sys.stdin).close()
 
@@ -37,13 +33,12 @@ class Client(TunnelClient):
         while True:
             data = stream.readline()
             if data:
-                #print("sndData: {0}".format(codecs.encode(data, 'hex')))
                 self._conn.send(data)
             else:
                 self._conn.sendEOF()
                 return
 
-class Service(TunnelService):
+class Service(ModuleService):
     def runLocal(self):
         pass
 
