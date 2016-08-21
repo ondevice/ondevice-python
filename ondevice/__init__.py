@@ -7,7 +7,7 @@ import os, sys
 from ondevice import commands
 
 def _main():
-    main(sys.argv[1:])
+    return main(sys.argv[1:])
 
 def main(args):
     logging.basicConfig(level=logging.INFO)
@@ -22,7 +22,7 @@ def main(args):
             args.insert(0, cmd[1:])
             cmd = 'connect'
 
-        commands.run(cmd, *args, **opts)
+        return commands.run(cmd, *args, **opts)
 
 def getVersion():
     pkgInfo = pkg_resources.require("ondevice")[0]
@@ -63,4 +63,4 @@ def usage(exitCode=1):
     sys.exit(exitCode)
 
 if __name__ == '__main__':
-    _main()
+    sys.exit(_main())

@@ -11,7 +11,7 @@ def load(cmdName):
 
 def run(cmdName, *args, **opts):
     cmd = load(cmdName)
-    cmd.run(*args, **opts)
+    return cmd.run(*args, **opts)
 
 def usage(cmdName):
     cmd = load(cmdName)

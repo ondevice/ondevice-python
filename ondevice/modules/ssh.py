@@ -39,7 +39,7 @@ class Client(ModuleClient):
             proxyCmd.insert(1, '--auth={0}'.format(params['auth']))
 
         ssh = subprocess.Popen(['ssh', '-o', 'ProxyCommand={0}'.format(' '.join(proxyCmd)), 'ondevice:{0}'.format(devId)]+list(args), stdin=None, stdout=None, stderr=None)
-        ssh.wait()
+        return ssh.wait()
 
     def startRemote(self):
         pass # we don't need a remote connection; Client_tunnel does that for us

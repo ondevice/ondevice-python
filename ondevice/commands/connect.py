@@ -32,4 +32,5 @@ def run(module, dev, *args):
 
     args = ()
     if hasattr(client, '_args'): args = client._args
-    client.runLocal(*args) # don't run in a background thread
+    rc = client.runLocal(*args)
+    return rc
