@@ -1,5 +1,4 @@
 import ondevice
-from ondevice.core import config
 
 from six.moves import urllib_parse
 import base64
@@ -9,8 +8,8 @@ import ssl
 import websocket
 
 BASE_URL=urllib_parse.urlparse('wss://api.ondevice.io/v1.1')
-#BASE_URL='ws://localhost:8080/v1.1'
-#BASE_URL='wss://local.ondevice.io:8443/v1.1'
+#BASE_URL=urllib_parse.urlparse('ws://localhost:8080/v1.1')
+#BASE_URL=urllib.parse.urlparse('wss://local.ondevice.io:8443/v1.1')
 class Message:
     def __init__(self, data):
         assert type(data) == dict
