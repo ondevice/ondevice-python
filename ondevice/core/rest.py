@@ -33,7 +33,7 @@ def apiRequest(method, endpoint, params={}, data=None):
         data = json.dumps(data)
         headers.update({
             'Content-type': 'application/json; charset=utf8',
-            'User-agent': 'ondevice {0}'.format(ondevice.getVersion())
+            'User-agent': 'ondevice v{0}'.format(ondevice.getVersion())
         }) # TODO check if we need to also set the content-length
 
     if sock.BASE_URL.scheme == 'ws':

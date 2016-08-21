@@ -28,14 +28,11 @@ class Socket:
         if baseUrl == None:
             baseUrl = BASE_URL.geturl()
 
-        if 'version' not in params:
-            params['version'] = ondevice.getVersion()
-
         paramStr = '&'.join('{0}={1}'.format(k,v) for k, v in params.items())
         self._url = '{baseUrl}{endpoint}/websocket?{paramStr}'.format(**locals())
 
         headers = []
-        headers.append('User-agent: ondevice {0}'.format(ondevice.getVersion()))
+        headers.append('User-agent: ondevice v{0}'.format(ondevice.getVersion()))
         if auth != None:
             basicAuth = "{0}:{1}".format(*auth).encode('ascii')
             headers.append("Authorization: Basic {0}".format(base64.b64encode(basicAuth).decode('ascii')))
