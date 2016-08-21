@@ -14,6 +14,7 @@ Examples:
 
 from ondevice.modules import ModuleClient, ModuleService
 
+import errno
 import logging
 import socket
 import subprocess
@@ -71,15 +72,28 @@ class Service(ModuleService):
         # TODO make me configurable
         # TODO use a timeout; raise an exception on error
         self._sock.connect(('localhost', 22))
+        logging.debug("connected to SSH server: {0} -> {1}".format(self._sock.getsockname(), self._sock.getpeername()))
 
         while True:
-            data = self._sock.recv(4096)
-            if data:
-                logging.debug("sndData: %s", repr(data))
-                self._conn.send(data)
-            else:
-                self._conn.sendEOF()
-                return
+            try:
+                data = self._sock.recv(4096)
+                if data:
+                    logging.debug("sndData: %s", repr(data))
+                    self._conn.send(data)
+                else:
+                    self._conn.sendEOF()
+                    return
+            except OSError as e:
+                if e.errno == errno.EBADF:
+                    # socket has been closed (i.e. by onClose())
+                    break
+                else: raise e
+
+    def onClose(self):
+        ModuleService.onClose(self)
+        logging.debug("closing SSH client socket ({0} -> {1})".format(self._sock.getsockname(), self._sock.getpeername()))
+        self._sock.shutdown(socket.SHUT_RDWR)
+        self._sock.close()
 
     def onMessage(self, data):
         logging.debug("onMessage: %s", repr(data))
