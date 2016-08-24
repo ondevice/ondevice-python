@@ -16,7 +16,7 @@ _findCmd() {
 }
 
 _isDistro() {
-	grep -qis "$1"
+	grep -qis "$1" /etc/issue
 }
 
 _hasCmd() {
@@ -95,10 +95,10 @@ installOndevice() {
 	. /usr/local/lib/ondevice/bin/activate
 
 	if [ "python3" = "$(basename "$PYTHON")" ]; then
-		pip install --upgrade ondevice
+		pip install ondevice
 	else
 		# if we're still on python2, use python-daemon==1.5.5 (since the current version isn't compatible to py2.6)
-		pip install --upgrade ondevice python-daemon==1.5.5
+		pip install ondevice python-daemon==1.5.5
 	fi
 
 	deactivate
