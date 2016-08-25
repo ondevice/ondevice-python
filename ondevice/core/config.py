@@ -102,6 +102,14 @@ def _getConfigPath(filename):
     homeDir = os.path.expanduser('~')
     configDir = os.path.join(homeDir, '.config/ondevice')
     if not os.path.isdir(configDir):
+        parentDir = os.path.join(homeDir, '.config/')
+        if not os.path.isdir(homeDir):
+            # it's not our job to also create the home directory,
+            # (it might even have unexpected implications)
+            # so if it doesn't exist, exit gracefully
+            raise Exception("Can't find user's home directory ({0})".format(homeDir))
+        if not os.path.isdir(parentDir):
+            os.mkdir(parentDir)
         os.mkdir(configDir)
 
     return os.path.join(configDir, filename)
