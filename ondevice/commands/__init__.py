@@ -1,3 +1,5 @@
+from ondevice.core import exception
+
 import pkgutil
 
 def listCommands():
@@ -15,6 +17,8 @@ def run(cmdName, *args, **opts):
 
 def usage(cmdName):
     cmd = load(cmdName)
+    if not hasattr(cmd, 'usage'):
+        raise exception.ImplementationError("Command '{0}' doesn't have 'usage' information".format(cmdName))
     if callable(cmd.usage):
         args, msg = cmd.usage()
         return {'args': args, 'msg': msg}

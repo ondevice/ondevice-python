@@ -13,6 +13,7 @@ usage = {
 }
 
 from ondevice import commands
+from ondevice.core import exception
 
 import sys
 
@@ -41,6 +42,10 @@ def run(cmdName=None):
             print('')
     else:
         cmd = commands.load(cmdName)
+
+        if not hasattr(cmd, '__doc__') or cmd.__doc__ == None:
+            raise exception.ImplementationError("Command '{0}' lacks documentation!".format(cmdName))
+
         usage = commands.usage(cmdName)
         usage.setdefault('cmd', cmdName)
         usage.setdefault('args', '')
