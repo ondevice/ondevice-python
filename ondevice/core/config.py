@@ -3,6 +3,8 @@ try:
 except ImportError:
     from ConfigParser import ConfigParser
 
+from ondevice.core import exception
+
 import os
 
 class Overrides:
@@ -107,7 +109,7 @@ def _getConfigPath(filename):
             # it's not our job to also create the home directory,
             # (it might even have unexpected implications)
             # so if it doesn't exist, exit gracefully
-            raise Exception("Can't find user's home directory ({0})".format(homeDir))
+            raise exception.ConfigurationError("Can't find user's home directory ({0})".format(homeDir))
         if not os.path.isdir(parentDir):
             os.mkdir(parentDir)
         os.mkdir(configDir)

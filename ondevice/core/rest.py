@@ -1,5 +1,5 @@
 import ondevice
-from ondevice.core import config, sock
+from ondevice.core import config, exception, sock
 
 import base64
 import json
@@ -48,13 +48,13 @@ def apiRequest(method, endpoint, params={}, data=None):
     if resp.status < 200 or resp.status >= 300:
         # TODO implement HTTP redirect support
         logging.warning("Error message: %s", rc)
-        raise Exception("API server responded with code {0}!".format(resp.status))
+        raise exception.TransportError("API server responded with code {0}!".format(resp.status))
     elif 'content-type' not in resp.headers:
-        raise Exception("Response lacks Content-type header!")
+        raise exception.TransportError("Response lacks Content-type header!")
 
     cType=resp.headers['content-type'].lower().split(';')
     if cType[0] != 'application/json':
-        raise Exception("Expected an 'application/json' response (was: '{0}')".format(cType[0]))
+        raise exception.TransportError("Expected an 'application/json' response (was: '{0}')".format(cType[0]))
     if type(rc) == bytes:
         rc = rc.decode('utf8') # TODO check the actual 'charset' part from cType
     return json.loads(rc)

@@ -1,3 +1,4 @@
+from ondevice.core import exception
 import ondevice
 
 from six.moves import urllib_parse
@@ -37,7 +38,7 @@ class Socket:
             basicAuth = "{0}:{1}".format(*auth).encode('ascii')
             headers.append("Authorization: Basic {0}".format(base64.b64encode(basicAuth).decode('ascii')))
         else:
-            raise Exception("Missing authentication data")
+            raise exception.ConfigurationError("Missing authentication data")
 
         self._ws = websocket.WebSocketApp(self._url,
             header=headers,

@@ -19,6 +19,7 @@ usage = {
 }
 
 from ondevice import modules
+from ondevice.core import exception
 
 import sys
 
@@ -43,4 +44,4 @@ def run(subcmd='list', *args):
     elif subcmd == 'list':
         return listModules(*args)
     else:
-        raise Exception("Unknown subcommand: {0}".format(subcmd))
+        raise exception.UsageError("Unknown subcommand: {0}".format(subcmd))

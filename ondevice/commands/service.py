@@ -28,7 +28,7 @@ usage = {
     'group': 'device'
 }
 
-from ondevice.core import service
+from ondevice.core import exception, service
 
 
 def addService(name, protocol):
@@ -54,4 +54,4 @@ def run(subcmd='list', *args):
     elif subcmd == 'rm':
         rmService(*args)
     else:
-        raise Exception("Unsupported subcommand: {0}".format(subcmd))
+        raise exception.UsageError("Unsupported subcommand: {0}".format(subcmd))

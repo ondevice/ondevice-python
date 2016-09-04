@@ -1,4 +1,4 @@
-from ondevice.core import config, service
+from ondevice.core import config, exception, service
 from ondevice.core.connection import Connection, Response
 
 import imp
@@ -21,7 +21,7 @@ class Endpoint:
             elif mode in ['rb','wb']:
                 pass
             else:
-                raise Exception("Unexpected stream mode: {0}".format(mode))
+                raise exception.ImplementationError("Unexpected stream mode: {0}".format(mode))
 
             rc = io.open(stream.fileno(), mode=mode) # py2
             if hasattr(rc, 'read'):
@@ -39,7 +39,7 @@ class Endpoint:
         self._localThread.start()
 
     def onMessage(self, data):
-        raise Exception("This module doesn't implement the 'onMessage' endpoint!?!")
+        raise exception.ImplementationError("This module doesn't implement the 'onMessage' endpoint!?!")
 
     def runRemote(self):
         self._conn.run()
@@ -52,10 +52,10 @@ class ModuleClient(Endpoint):
         self._conn = Connection(devId, protocol, svcName, listener=self)
 
     def onClose(self):
-        raise Exception("onClose not implemented!")
+        raise exception.ImplementationError("onClose not implemented!")
 
     def onEOF(self):
-        raise Exception("onEOF not implemented!")
+        raise exception.ImplementationError("onEOF not implemented!")
 
 class ModuleService(Endpoint):
     def __init__(self, brokerUrl, tunnelId, devId):
@@ -105,7 +105,7 @@ def loadClient2(devId, modName, suffix, svcName, args):
     mod = load(modName)
 
     if not hasattr(mod, className):
-        raise Exception("Module '{0}' doesn't have a '{1}' endpoint".format(modName, suffix))
+        raise exception.UsageError("Module '{0}' doesn't have a '{1}' endpoint".format(modName, suffix))
     clazz = getattr(mod, className)
     rc = clazz(devId=devId, protocol=modName, svcName=svcName, args=args)
     rc._params.update({'protocol': modName, 'endpoint': suffix })

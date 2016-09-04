@@ -29,7 +29,7 @@ usage = {
 }
 
 
-from ondevice.core import rest, sock
+from ondevice.core import exception, rest, sock
 
 
 def _printProps(resp):
@@ -63,4 +63,4 @@ def run(devName, subcmd, *args):
     elif subcmd == 'rm':
         propRm(devName, *args)
     else:
-        raise Exception("Unsupported subcommand: {0}".format(subcmd))
+        raise exception.UsageError("Unsupported subcommand: {0}".format(subcmd))
