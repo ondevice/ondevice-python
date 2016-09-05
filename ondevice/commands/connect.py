@@ -20,7 +20,8 @@ Examples:
 usage = {
     'args': '<module> <dev> [svcName]',
     'msg': 'Connects to a service on the specified device (shorthand: `:<module>`)',
-    'group': 'client'
+    'group': 'client',
+    'hidden': True # hide this for now - since there's a proper `ondevice ssh` command now
 }
 
 from ondevice import modules

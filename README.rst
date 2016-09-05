@@ -89,8 +89,8 @@ Connect to a device
 
 .. code::
 
-  $ ondevice :ssh ondevUser/abcdefghi -l manuel
-  manuel@ondevice:ondevUser/abcdefghi's password: 
+  $ ondevice ssh manuel@ondevUser.abcdefghi
+  manuel@ondevice:ondevUser.abcdefghi's password: 
   Linux raspberrypi 3.10.33+ #654 PREEMPT Fri Mar 7 16:32:08 GMT 2014 armv6l
 
   The programs included with the Debian GNU/Linux system are free software;

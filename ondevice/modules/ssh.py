@@ -2,13 +2,13 @@
 Tunneled SSH client module
 
 Usage:
-- {cmd} connect ssh <deviceName> [ssh-arguments...]
-- {cmd} :ssh <deviceName> [ssh-arguments...] - shorthand for the above
+- {cmd} ssh <deviceName> [ssh-arguments...]
+- {cmd} ssh <user>@<deviceName> [ssh-arguments...]
 
 
 Examples:
-- {cmd} :ssh@foo ondevice/test -l root
-  Login to the SSH service named `foo` on `ondevice`'s test device as user `root`
+- {cmd} ssh root@ondevice.test ondevice/test
+  connect to SSH on `ondevice`'s test device as user `root`
 """
 
 
@@ -23,6 +23,7 @@ import sys
 info = 'Connect to your devices\' SSH server'
 encrypted = True
 
+# DEPRECATED - use `ondevice ssh` instead
 class Client(ModuleClient):
     """ Endpoint stub that simply invokes 'ssh' with the ProxyCommand set to
     'onclient connect ssh:tunnel' """
