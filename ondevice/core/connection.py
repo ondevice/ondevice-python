@@ -144,11 +144,36 @@ class Response(TunnelSocket):
         with self._lock:
             self._ws.close()
 
+def qualifyDeviceName(name):
+    '''prepends the user name to unqualified device IDs
+        - name: Device name (e.g. dev1, user0.dev1)
+
+        returns: qualified deviceID (e.g. user0.dev1)
+            if the name parameter was already qualified, it's returned as is.
+    '''
+
+    if '.' in name:
+        return name
+    elif '/' in name: # legacy user/device format (replace with the dot format)
+        return '.'.join(name.split('/', 1))
+    else:
+        return '.'.join([config.getClientUser(), name])
 
 def parseDeviceName(name):
-    slashPos = name.find('/')
+    '''Splits a (possibly) qualified device name into its components
+
+        - name:  Device name (e.g. dev1, user0.dev1)
+
+        returns: (userName, deviceName)
+          if the userName is not part of the name parameter, config.getClientUser() is returned
+    '''
     user = None
-    if slashPos >= 0:
-        user = name[:slashPos]
-        name = name[slashPos+1:]
+
+    if '.' in name: # format: user.device
+        user, name = name.split('.', 1)
+    elif '/' in name: # legacy device IDs
+        user, name = name.split('/', 1)
+    else:
+        user = config.getClientUser()
+
     return user, name
