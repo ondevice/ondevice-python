@@ -40,7 +40,7 @@ def addSection(name):
     return _getConfig(True).add_section(name)
 
 def getClientAuth(tgtUser=None):
-    clientUser = getValue('client', 'user')
+    clientUser = getClientUser()
     if tgtUser != None:
         if tgtUser != clientUser:
             userKey = 'auth_{0}'.format(tgtUser)
@@ -50,6 +50,9 @@ def getClientAuth(tgtUser=None):
     if clientUser != None and clientKey != None:
         return clientUser, getValue('client', 'auth')
     else: return None
+
+def getClientUser():
+    return getValue('client', 'user')
 
 def getDeviceAuth(): return getValue('device', 'auth')
 def getDeviceId(): return getValue('device', 'id')
