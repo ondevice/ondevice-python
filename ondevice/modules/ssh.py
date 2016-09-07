@@ -52,6 +52,15 @@ class Client_tunnel(ModuleClient):
         stream.write(data)
         stream.flush()
 
+    def onClose(self):
+        logging.warning('hello onClose')
+        sys.exit(0)
+
+    def onEOF(self):
+        logging.warning('hello onEOF')
+        self.getConsoleBuffer(sys.stdout).close()
+
+
     def runLocal(self):
         while True:
             # read1() only invokes the underlying read function only once (and
