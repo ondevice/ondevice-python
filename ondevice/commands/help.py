@@ -19,7 +19,7 @@ import sys
 
 def run(cmdName=None):
     if cmdName == None:
-        print("USAGE: {0} <command> [args]\n".format(sys.argv[0]))
+        print("USAGE: {0} <command> [args]\n".format('ondevice'))
 
         cmds = {'client':[], 'device':[], None:[]}
         groupNames = {'client': 'Client commands', 'device': 'Device commands', None: 'Other commands'}
@@ -49,5 +49,5 @@ def run(cmdName=None):
         usage = commands.usage(cmdName)
         usage.setdefault('cmd', cmdName)
         usage.setdefault('args', '')
-        print('{0} {cmd} {args}'.format(sys.argv[0], **usage))
-        print(cmd.__doc__.format(cmd=sys.argv[0]))
+        print('{0} {cmd} {args}'.format('ondevice', **usage))
+        print(cmd.__doc__.format(cmd='ondevice'))
