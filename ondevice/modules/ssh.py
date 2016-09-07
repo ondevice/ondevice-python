@@ -7,8 +7,8 @@ Usage:
 
 
 Examples:
-- {cmd} ssh root@ondevice.test ondevice/test
-  connect to SSH on `ondevice`'s test device as user `root`
+- {cmd} ssh root@test
+  connect to SSH on your `test` device as user `root`
 """
 
 

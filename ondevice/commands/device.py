@@ -5,18 +5,18 @@
 - {cmd} device <devName> rm <key>... - remove specific device properties
 
 Examples:
-$ {cmd} device me/someDevice props
+$ {cmd} device someDevice props
 foo=bar
 abc=123
 
-$ {cmd} device me/someDevice props foo hello
+$ {cmd} device someDevice props foo hello
 foo=bar
 hello=
 
-$ {cmd} device me/someDevice rm abc
+$ {cmd} device someDevice rm abc
 foo=bar
 
-$ {cmd} device me/someDevice set hello=world answer=42
+$ {cmd} device someDevice set hello=world answer=42
 foo=bar
 hello=world
 answer=42

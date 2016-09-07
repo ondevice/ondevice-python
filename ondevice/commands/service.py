@@ -3,7 +3,7 @@
   - lists local services
 {cmd} service add [-h/--hidden] <protocol> <name> [parameters]
   - adds a (hidden) service with the given protocol, name and parameters
-{cmd} service rm <name> [-f/--force]
+{cmd} service rm <name>
   - removes a service (by name)
 
 The default installation only has the 'ssh' 'echo' service enabled.
@@ -18,14 +18,15 @@ Proto   Name    Params
 ssh     ssh     --port=378
 echo    [echo]
 
-$ {cmd} service rm echo -f
+$ {cmd} service rm echo
 $ {cmd} services add echo otherEcho --hidden
 """
 
 usage = {
     'args': '[add/rm] [args...]',
     'msg': 'Manages services',
-    'group': 'device'
+    'group': 'device',
+    'hidden': True # hide it for now - since only 'ssh' is officially supported right now
 }
 
 from ondevice.core import exception, service

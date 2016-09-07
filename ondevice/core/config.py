@@ -48,7 +48,7 @@ def getClientAuth(tgtUser=None):
                 return tgtUser, getValue('client', userKey)
     clientKey = getValue('client', 'auth')
     if clientUser != None and clientKey != None:
-        return clientUser, getValue('client', 'auth')
+        return clientUser, clientKey
     else: return None
 
 def getClientUser():

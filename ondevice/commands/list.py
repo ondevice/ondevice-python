@@ -4,8 +4,8 @@ Prints detailed information on your devices
 Examples:
 $ {cmd} list
 ID          State               IP          Version     Name
-foo/dev1    OFFLINE (for 1h)    1.2.3.4     0.1dev6     Device 1
-foo/raspi   ONLINE (for 2d)     1.2.3.5     0.1dev6     Raspberry PI at home
+foo.dev1    OFFLINE (for 1h)    1.2.3.4     0.1dev6     Device 1
+foo.raspi   ONLINE (for 2d)     1.2.3.5     0.1dev6     Raspberry PI at home
 """
 
 usage = {
