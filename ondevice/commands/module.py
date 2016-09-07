@@ -15,7 +15,8 @@ data in certain protocol through the ondevice.io network.
 #"""
 
 usage = {
-    'msg': 'Lists installed modules'
+    'msg': 'Lists installed modules',
+    'hidden': True # hide for now - until other, non-ssh based protocols are officially supported
 }
 
 from ondevice import modules
