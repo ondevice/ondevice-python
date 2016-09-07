@@ -26,7 +26,7 @@ https://ondevice.io/ though).
 .. code::
 
   $ ondevice help
-  USAGE: /usr/local/bin/ondevice <command> [args]
+  USAGE: ondevice <command> [args]
 
   - Device commands:
       daemon 
@@ -79,8 +79,8 @@ List your devices (on the client)
 
   $ ondevice list|head
   ID                   State      IP              Version    Name
-  ondevUser/abcdefghi  offline    127.0.0.1       0.1dev11   Raspberry Pi
-  ondevUser/foobar123  online     10.0.0.2        0.1dev11   Home router
+  ondevUser.abcdefg    offline    127.0.0.1       0.1dev11   Raspberry Pi
+  ondevUser.foobar123  online     10.0.0.2        0.1dev11   Home router
   ...
 
 
