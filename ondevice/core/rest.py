@@ -22,7 +22,9 @@ def apiPOST(endpoint, params={}, data=None):
 def apiRequest(method, endpoint, params={}, data=None):
     # TODO implement URL params support
     auth = config.getClientAuth()
-    headers = {}
+    headers = {
+        'User-agent': 'ondevice v{0}'.format(ondevice.getVersion())
+    }
 
     if auth != None:
         basicAuth = base64.b64encode("{0}:{1}".format(*auth).encode('ascii')).decode('ascii')
@@ -33,7 +35,6 @@ def apiRequest(method, endpoint, params={}, data=None):
         data = json.dumps(data)
         headers.update({
             'Content-type': 'application/json; charset=utf8',
-            'User-agent': 'ondevice v{0}'.format(ondevice.getVersion())
         }) # TODO check if we need to also set the content-length
 
     if sock.BASE_URL.scheme == 'ws':
