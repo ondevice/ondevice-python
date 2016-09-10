@@ -124,7 +124,7 @@ def _runForever():
 
 	pidfile = config._getConfigPath('ondevice.pid')
 	with open(pidfile, 'w') as f:
-		f.write(str(os.getpid()))
+		f.write('{0}\n'.format(os.getpid()))
 
 	try:
 		while (True):
