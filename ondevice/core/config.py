@@ -86,9 +86,11 @@ def getDaemonPID():
     pidfile = _getConfigPath('ondevice.pid')
     if os.path.exists(pidfile):
         with open(pidfile, 'r') as f:
-            return int(f.read().strip())
-    else:
-        return false
+            rc = int(f.read().strip())
+            if rc > 0:
+                return rc
+
+    return None
 
 
 
