@@ -5,9 +5,14 @@ import pkg_resources
 import os, sys
 
 from ondevice import commands
+from ondevice.core import exception as ex
 
 def _main():
-    return main(sys.argv[1:])
+    try:
+        return main(sys.argv[1:])
+    except ex.UsageError as e:
+        logging.error("Usage error: {0}".format(e.args[0]))
+        return 1
 
 def main(args):
     logging.basicConfig(level=logging.INFO)
