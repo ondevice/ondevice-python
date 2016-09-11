@@ -8,7 +8,10 @@ def listCommands():
             yield modname
 
 def load(cmdName):
-    ondevice = __import__('ondevice.commands.{0}'.format(cmdName))
+    try:
+        ondevice = __import__('ondevice.commands.{0}'.format(cmdName))
+    except ImportError:
+        raise exception.UsageError("Unknown command, try 'ondevice help' for a list of commands: {0}".format(cmdName))
     return getattr(ondevice.commands, cmdName)
 
 def run(cmdName, *args, **opts):
