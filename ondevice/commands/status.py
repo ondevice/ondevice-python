@@ -22,10 +22,7 @@ usage = {
 def run():
     devId = None
     if daemon.getDaemonPID() != None:
-        # TODO as soon as the config keys are updated, use sth. like config.getDeviceId()
-        # (right now config.getDeviceId() returns the key the device uses to authenticate
-        # itself - which was a mess up on my side - mreithub)
-        devId = config.getValue('device', 'name')
+        devId = config.getDeviceId()
 
     if devId != None:
         print("Device:")

@@ -2,8 +2,8 @@
 Tunneled SSH client module
 
 Usage:
-- {cmd} ssh <deviceName> [ssh-arguments...]
-- {cmd} ssh <user>@<deviceName> [ssh-arguments...]
+- {cmd} ssh <deviceId> [ssh-arguments...]
+- {cmd} ssh <user>@<deviceId> [ssh-arguments...]
 
 
 Examples:

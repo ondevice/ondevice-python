@@ -63,6 +63,12 @@ def getDeviceKey():
         remove('device', 'id')
     return getValue('device', 'key')
 
+def getDeviceId():
+    # remove old device 'name' config value if present
+    if hasValue('device', 'name'):
+        remove('device', 'name')
+    return getValue('device', 'dev-id')
+
 def getDeviceUser():
     # code to fix backwards compatibility
     # TODO remove this snippet as soon as all devices are updated
@@ -86,7 +92,7 @@ def setClientAuth(auth): setValue('client', 'auth', auth)
 def setClientUser(name): setValue('client', 'user', name)
 def setDeviceAuth(auth): setValue('device', 'auth', auth)
 def setDeviceKey(key): setValue('device', 'key', key)
-def setDeviceName(slug): setValue('device', 'name', slug)
+def setDeviceId(slug): setValue('device', 'dev-id', slug)
 def setDeviceUser(name): setValue('device', 'user', name)
 
 

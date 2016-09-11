@@ -129,7 +129,7 @@ class TunnelSocket(sock.Socket):
 
 class Connection(TunnelSocket):
     def __init__(self, dev, protocol, service, listener=None):
-        user,dev = parseDeviceName(dev)
+        user,dev = parseDeviceId(dev)
         auth = config.getClientAuth(user)
         TunnelSocket.__init__(self, '/connect', auth=auth, dev=dev, protocol=protocol, service=service, listener=listener)
 
@@ -144,7 +144,7 @@ class Response(TunnelSocket):
         with self._lock:
             self._ws.close()
 
-def qualifyDeviceName(name):
+def qualifyDeviceId(name):
     '''prepends the user name to unqualified device IDs
         - name: Device name (e.g. dev1, user0.dev1)
 
@@ -159,21 +159,21 @@ def qualifyDeviceName(name):
     else:
         return '.'.join([config.getClientUser(), name])
 
-def parseDeviceName(name):
-    '''Splits a (possibly) qualified device name into its components
+def parseDeviceId(devId):
+    '''Splits a (possibly) qualified device ID into its components
 
         - name:  Device name (e.g. dev1, user0.dev1)
 
-        returns: (userName, deviceName)
+        returns: (userName, deviceId)
           if the userName is not part of the name parameter, config.getClientUser() is returned
     '''
     user = None
 
     if '.' in name: # format: user.device
-        user, name = name.split('.', 1)
+        user, devId = name.split('.', 1)
     elif '/' in name: # legacy device IDs
-        user, name = name.split('/', 1)
+        user, devId = name.split('/', 1)
     else:
         user = config.getClientUser()
 
-    return user, name
+    return user, devId

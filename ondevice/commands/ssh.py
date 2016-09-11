@@ -53,7 +53,7 @@ def run(target, *args):
         args = ['-l', sshUser]+list(args)
 
     # this prevents multiple known_hosts entries per device (a unqualified and a qualified one)
-    qualifiedId = connection.qualifyDeviceName(devId)
+    qualifiedId = connection.qualifyDeviceId(devId)
 
     ssh = subprocess.Popen(['ssh', '-o', proxyCmd, 'ondevice:{0}'.format(qualifiedId)]+list(args), stdin=None, stdout=None, stderr=None)
     return ssh.wait()

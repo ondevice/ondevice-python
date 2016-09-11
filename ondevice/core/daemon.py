@@ -34,7 +34,7 @@ class Daemon(sock.Socket):
 			elif msg._type == 'hello':
 				assert not self._connectionSucceeded
 				logging.info("Connection established, online as '%s'", msg.name)
-				config.setDeviceName(msg.name)
+				config.setDeviceId(msg.name)
 				self.key = msg.devId
 				self.sid = msg.sid
 				config.setDeviceKey(msg.devId)
