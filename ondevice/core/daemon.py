@@ -5,6 +5,7 @@ import filelock
 import json
 import logging
 import os
+import psutil
 import sys
 import traceback
 import time
@@ -106,6 +107,17 @@ class Daemon(sock.Socket):
 	def sendConnError(self, code, msg, tunnelId):
 		logging.error("Connection error: {0} (code {1})".format(msg, code))
 		self.send2(_type='connectError', tunnelId=tunnelId, code=code, msg=msg)
+
+def getDaemonPID():
+    pidfile = config._getConfigPath('ondevice.pid')
+    if os.path.exists(pidfile):
+        with open(pidfile, 'r') as f:
+            rc = int(f.read().strip())
+            if rc > 0 and psutil.pid_exists(rc):
+				# TODO check if it's actually the right PID
+                return rc
+
+    return None
 
 def runForever():
 	""" Run the device endpoint in a loop (until it gets aborted) """

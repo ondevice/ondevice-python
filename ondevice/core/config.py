@@ -82,17 +82,6 @@ def setDeviceId(devId): setValue('device', 'id', devId)
 def setDeviceName(slug): setValue('device', 'name', slug)
 def setDeviceUser(name): setValue('device', 'user', name)
 
-def getDaemonPID():
-    pidfile = _getConfigPath('ondevice.pid')
-    if os.path.exists(pidfile):
-        with open(pidfile, 'r') as f:
-            rc = int(f.read().strip())
-            if rc > 0:
-                return rc
-
-    return None
-
-
 
 def _getConfig(reread=False):
     global _config

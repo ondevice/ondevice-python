@@ -18,7 +18,7 @@ usage = {
     'group': 'device'
 }
 
-from ondevice.core import config
+from ondevice.core import daemon
 
 import os
 import psutil
@@ -27,7 +27,7 @@ import sys
 import time
 
 def run():
-    pid = config.getDaemonPID()
+    pid = daemon.getDaemonPID()
     if pid != None:
         sys.stderr.write("Stopping ondevice daemon...")
         sys.stderr.flush()
