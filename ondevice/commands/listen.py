@@ -11,7 +11,7 @@ usage = {
     'hidden': True
 }
 
-from ondevice.core import session
+from ondevice.core import daemon
 
 def run():
-    session.runForever()
+    daemon.runForever()

@@ -10,10 +10,10 @@ usage = {
     'group': 'device'
 }
 
-from ondevice.core import session
+from ondevice.core import daemon
 
-import daemon
+from daemon import DaemonContext
 
 def run():
-    with daemon.DaemonContext():
-        session.runForever()
+    with DaemonContext():
+        daemon.runForever()

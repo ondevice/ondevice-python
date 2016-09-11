@@ -10,8 +10,8 @@ import traceback
 import time
 
 
-class Session(sock.Socket):
-	""" Connects to the ondevice service """
+class Daemon(sock.Socket):
+	""" Runs the ondevice daemon """
 	def __init__(self, sid=None):
 		self._abortMsg = None
 		self.sid = sid
@@ -128,18 +128,18 @@ def _runForever():
 
 	try:
 		while (True):
-			# TODO right now it's impossible to reuse Session objects (since the URL's set in the constructor but the devId might change afterwards)
-			session = Session(sid=sid)
-			if session.run() == True:
+			# TODO right now it's impossible to reuse Daemon objects (since the URL's set in the constructor but the devId might change afterwards)
+			daemon = Daemon(sid=sid)
+			if daemon.run() == True:
 				retryDelay = 10
-			if session._abortMsg != None:
-				logging.info(session._abortMsg)
+			if daemon._abortMsg != None:
+				logging.info(daemon._abortMsg)
 				break
 
 			else:
 				logging.info("Lost connection, retrying in %ds", retryDelay)
 				time.sleep(retryDelay)
 				retryDelay = min(900, retryDelay*1.5)
-				sid = session.sid
+				sid = daemon.sid
 	finally:
 		os.unlink(pidfile)
