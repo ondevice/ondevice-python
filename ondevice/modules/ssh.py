@@ -53,11 +53,11 @@ class Client_tunnel(ModuleClient):
         stream.flush()
 
     def onClose(self):
-        logging.warning('hello onClose')
+        logging.debug('ondevice ssh: connection closed, exiting')
         sys.exit(0)
 
     def onEOF(self):
-        logging.warning('hello onEOF')
+        logging.debug('ondevice ssh: got EOF, closing stdout')
         self.getConsoleBuffer(sys.stdout).close()
 
 
