@@ -17,10 +17,10 @@ class Daemon(sock.Socket):
 		self._abortMsg = None
 		self.sid = sid
 
-		devId = config.getDeviceId()
+		key = config.getDeviceKey()
 		kwargs = {}
-		if devId != None:
-			kwargs['id'] = devId
+		if key != None:
+			kwargs['id'] = key
 		if sid != None:
 			kwargs['sid'] = sid
 
@@ -35,9 +35,9 @@ class Daemon(sock.Socket):
 				assert not self._connectionSucceeded
 				logging.info("Connection established, online as '%s'", msg.name)
 				config.setDeviceName(msg.name)
-				self.devId = msg.devId
+				self.key = msg.devId
 				self.sid = msg.sid
-				config.setDeviceId(msg.devId)
+				config.setDeviceKey(msg.devId)
 
 				for name, svc in service.listServices().items():
 					self.send({'_type': 'announce', 'name': name, 'protocol': svc['protocol']})
@@ -59,7 +59,7 @@ class Daemon(sock.Socket):
 						return self.sendConnError(400, "Protocol mismatch (expected={0}, actual={1})".format(proto, msg.protocol), msg.tunnelId)
 					elif not modules.exists(proto):
 						return self.sendConnError(404, "Module '{0}' not found!".format(msg.protocol), msg.tunnelId)
-					svc = modules.getService(msg, self.devId)
+					svc = modules.getService(msg, self.key)
 
 					svc.startRemote()
 					svc.startLocal()
@@ -140,7 +140,7 @@ def _runForever():
 
 	try:
 		while (True):
-			# TODO right now it's impossible to reuse Daemon objects (since the URL's set in the constructor but the devId might change afterwards)
+			# TODO right now it's impossible to reuse Daemon objects (since the URL's set in the constructor but the device key might change afterwards)
 			daemon = Daemon(sid=sid)
 			if daemon.run() == True:
 				retryDelay = 10

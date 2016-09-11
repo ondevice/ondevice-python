@@ -55,7 +55,14 @@ def getClientUser():
     return getValue('client', 'user')
 
 def getDeviceAuth(): return getValue('device', 'auth')
-def getDeviceId(): return getValue('device', 'id')
+def getDeviceKey():
+    # backwards compatibility - used to be called 'device.id' (2016-09-11)
+    if not hasValue('device', 'key') and hasValue('device', 'id'):
+        key = getValue('device', 'id')
+        setDeviceKey(key)
+        remove('device', 'id')
+    return getValue('device', 'key')
+
 def getDeviceUser():
     # code to fix backwards compatibility
     # TODO remove this snippet as soon as all devices are updated
@@ -78,7 +85,7 @@ def listKeys(section):
 def setClientAuth(auth): setValue('client', 'auth', auth)
 def setClientUser(name): setValue('client', 'user', name)
 def setDeviceAuth(auth): setValue('device', 'auth', auth)
-def setDeviceId(devId): setValue('device', 'id', devId)
+def setDeviceKey(key): setValue('device', 'key', key)
 def setDeviceName(slug): setValue('device', 'name', slug)
 def setDeviceUser(name): setValue('device', 'user', name)
 
