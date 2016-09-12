@@ -169,10 +169,10 @@ def parseDeviceId(devId):
     '''
     user = None
 
-    if '.' in name: # format: user.device
-        user, devId = name.split('.', 1)
-    elif '/' in name: # legacy device IDs
-        user, devId = name.split('/', 1)
+    if '.' in devId: # format: user.device
+        user, devId = devId.split('.', 1)
+    elif '/' in devId: # legacy device IDs
+        user, devId = devId.split('/', 1)
     else:
         user = config.getClientUser()
 
