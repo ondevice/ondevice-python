@@ -124,7 +124,7 @@ class TunnelSocket(sock.Socket):
 
     def sendEOF(self):
         with self._lock:
-            logging.info("-- Sending EOF --")
+            logging.debug("-- Sending EOF --")
             self._ws.send(b'meta:EOF', 2) #OPCODE_BINARY
 
 class Connection(TunnelSocket):
