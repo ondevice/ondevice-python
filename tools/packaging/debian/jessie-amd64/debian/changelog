@@ -1,0 +1,5 @@
+ondevice (0.2.4) unstable; urgency=low
+
+  * Initial debian jessie package
+
+ -- Manuel Reithuber <manuel@reithuber.net>  Sat, 17 Sep 2016 08:34:25 +0200
