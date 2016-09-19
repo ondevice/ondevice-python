@@ -1,2 +1,2 @@
 #!/bin/bash -e
-/usr/share/python/ondevice/bin/ondevice "$@"
+/opt/ondevice/bin/ondevice "$@"
