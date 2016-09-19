@@ -4,15 +4,15 @@ import pkgutil
 
 def listCommands():
     for importer, modname, ispkg in pkgutil.iter_modules(__path__):
-        if not ispkg:
-            yield modname
+        if not ispkg and modname.endswith('_cmd'):
+            yield modname[:-4]
 
 def load(cmdName):
     try:
-        ondevice = __import__('ondevice.commands.{0}'.format(cmdName))
+        ondevice = __import__('ondevice.commands.{0}_cmd'.format(cmdName))
     except ImportError:
         raise exception.UsageError("Unknown command, try 'ondevice help' for a list of commands: {0}".format(cmdName))
-    return getattr(ondevice.commands, cmdName)
+    return getattr(ondevice.commands, '{0}_cmd'.format(cmdName))
 
 def run(cmdName, *args, **opts):
     cmd = load(cmdName)
