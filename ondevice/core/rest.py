@@ -50,10 +50,10 @@ def apiRequest(method, endpoint, params={}, data=None):
         # TODO implement HTTP redirect support
         logging.warning("Error message: %s", rc)
         raise exception.TransportError("API server responded with code {0}!".format(resp.status))
-    elif 'content-type' not in resp.headers:
+    elif resp.getheader('content-type') == None:
         raise exception.TransportError("Response lacks Content-type header!")
 
-    cType=resp.headers['content-type'].lower().split(';')
+    cType=resp.getheader('content-type').lower().split(';')
     if cType[0] != 'application/json':
         raise exception.TransportError("Expected an 'application/json' response (was: '{0}')".format(cType[0]))
     if type(rc) == bytes:
