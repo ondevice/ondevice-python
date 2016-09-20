@@ -4,4 +4,4 @@
 	dh $@ --with python-virtualenv
 
 override_dh_virtualenv:
-	dh_virtualenv -v --preinstall python-daemon==1.5.5
+	dh_virtualenv --install-suffix ondevice --preinstall python-daemon==1.5.5
