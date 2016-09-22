@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import getopt
 import logging
 import pkg_resources
 import os, sys
@@ -11,6 +12,9 @@ def _main():
     try:
         return main(sys.argv[1:])
     except ex.UsageError as e:
+        logging.error("Usage error: {0}".format(e.args[0]))
+        return 1
+    except getopt.GetoptError as e:
         logging.error("Usage error: {0}".format(e.args[0]))
         return 1
     except KeyboardInterrupt:
