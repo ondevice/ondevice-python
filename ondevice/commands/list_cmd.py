@@ -32,6 +32,7 @@ import getopt
 def run(*args):
     # TODO add '--state=on/offline' option
     optlist, args = getopt.gnu_getopt(args, '', ['json', 'props'])
+    optlist = dict(optlist)
     restUrl = '/devices'
 
     if len(args) > 0:
