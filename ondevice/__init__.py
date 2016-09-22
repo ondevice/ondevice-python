@@ -13,6 +13,9 @@ def _main():
     except ex.UsageError as e:
         logging.error("Usage error: {0}".format(e.args[0]))
         return 1
+    except KeyboardInterrupt:
+        logging.error(" -- keyboard interrupt --")
+        return 1
 
 def main(args):
     logging.basicConfig(level=logging.INFO)
