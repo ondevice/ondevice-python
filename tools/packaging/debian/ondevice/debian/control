@@ -7,7 +7,7 @@ Standards-Version: 3.9.5
 
 Package: ondevice
 Architecture: all
-Pre-Depends: dpkg (>= 1.15), python3.4, ${misc:Pre-Depends}
+Pre-Depends: dpkg (>= 1.15), ${misc:Pre-Depends}
 Depends: ondevice-python3.4 (=0.2.4) | ondevice-python2.7 (=0.2.4) | ondevice-python2.6 (=0.2.4), ${misc:Depends}
 Description: official ondevice.io client
  see https://ondevice.io/ for details
