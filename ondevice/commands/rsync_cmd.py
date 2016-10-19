@@ -18,8 +18,6 @@ argument to make it use `ondevice ssh` internally).
 
 """
 
-from ondevice.core import connection
-
 import subprocess
 import sys
 

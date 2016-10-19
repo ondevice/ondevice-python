@@ -29,7 +29,7 @@ Examples:
 
 """
 
-from ondevice.core import connection
+from ondevice.core import tunnel
 
 import getopt
 import subprocess
@@ -59,7 +59,7 @@ def run(*args):
         cmd.append('{0}{1}'.format(k,v))
 
     # add hostname (and user) in the format user@ondevice:devUser.devId
-    qualifiedId = connection.qualifyDeviceId(devId)
+    qualifiedId = tunnel.qualifyDeviceId(devId)
     hostname = 'ondevice:{0}'.format(qualifiedId)
     if sshUser != None:
         hostname = '{0}@{1}'.format(sshUser, hostname)

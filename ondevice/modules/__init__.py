@@ -1,5 +1,5 @@
 from ondevice.core import config, exception, service
-from ondevice.core.connection import Connection, Response
+from ondevice.core.tunnel import Connection, Response
 
 import imp
 import io
