@@ -18,7 +18,7 @@ class BackgroundThread():
 
     def _emit(self, event, *args, **kwargs):
         listeners = list(self._listeners[event]) if event in self._listeners else []
-        logging.info("thread {0} fired event: {1} (args={2}, kwargs={3}, {4} listeners)".format(self.target, event, args, kwargs, len(listeners)))
+        logging.debug("thread {0} fired event: {1} (args={2}, kwargs={3}, {4} listeners)".format(self.target, event, args, kwargs, len(listeners)))
 
         for l in listeners:
             l(*args, **kwargs)

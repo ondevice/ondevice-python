@@ -1,20 +1,23 @@
-from ondevice.core import config, sock
+from ondevice.core import config, sock, thread
 
 import logging
-import threading
 import sys
+import threading
+import time
 
 class TunnelSocket(sock.Socket):
-    """ Base class for Connection and Response """
+    """ Base class for Connection and Response. """
     def __init__(self, *args, **kwargs):
         if 'listener' in kwargs:
             self.listener = kwargs.pop('listener')
         self._eof = False
         self._lock = threading.Lock()
         self._lock.acquire() # lock initially (will be released once the server confirms the connection)
+        self.lastMsg = time.time()
         self.bytesReceived = 0
         self.bytesSent = 0
         sock.Socket.__init__(self, *args, **kwargs)
+        self._pingTask = thread.FixedDelayTask(self._ping, 60)
 
     def _callListener(self, method, *args, **kwargs):
         if self.listener != None:
@@ -29,6 +32,7 @@ class TunnelSocket(sock.Socket):
             and callable(getattr(self.listener, method)))
 
     def _onMessage(self, ws, messageData):
+        self.lastMsg = time.time()
         self.bytesReceived += len(messageData)
         colonPos = messageData.find(b':')
         if colonPos < 0:
@@ -59,6 +63,14 @@ class TunnelSocket(sock.Socket):
             elif msgType == b'EOF':
                 logging.debug("-- got EOF --")
                 self.onEOF()
+            elif msgType == b'ping':
+                logging.debug("-- got ping message --")
+                pongMsg = b'meta:pong'
+                if messageData != None:
+                    pongMsg += messageData
+                self._ws.send(pongMsg, 2) #OPCODE_BINARY
+            elif msgType == b'pong':
+                pass # ignore them for now
             else:
                 raise Exception("Unsupported meta message: '{0}'".format(messageData))
         elif msgType == b'error':
@@ -70,10 +82,14 @@ class TunnelSocket(sock.Socket):
 
     def _onConnected(self):
         self._lock.release()
+        self._pingTask.start()
+
         if self._hasListener('onConnected'):
             self._callListener('onConnected')
 
     def _onClose(self, ws):
+        self._pingTask.stop()
+        # TODO we should probably relock self._lock here
         if not self._eof:
             self.onEOF()
         if self._hasListener('onClose'):
@@ -88,6 +104,15 @@ class TunnelSocket(sock.Socket):
             k,v = param.split(b'=')
             rc[k] = v
         return rc
+
+    def _ping(self):
+        """ check that the last ping/message has been received within the last five minutes """
+        now = time.time()
+        logging.info("last ping received: {0}s ago".format(now - self.lastMsg))
+        if now - self.lastMsg > 300:
+            self.onError(-1, 'Connection lost')
+            self._ws.close()
+            raise Exception("connection timed out :(")
 
     def _takeHeader(self, msg):
         colonPos = msg.find(b':')
@@ -133,6 +158,10 @@ class Connection(TunnelSocket):
         auth = config.getClientAuth(user)
         TunnelSocket.__init__(self, '/connect', auth=auth, dev=dev, protocol=protocol, service=service, listener=listener)
 
+    def _ping(self):
+        logging.debug('sending tunnel ping')
+        self._ws.send(b'meta:ping', 2) #OPCODE_BINARY
+        TunnelSocket._ping(self)
 
 class Response(TunnelSocket):
     def __init__(self, broker, tunnelId, dev, listener=None):
