@@ -11,7 +11,9 @@ usage = {
     'hidden': True
 }
 
-from ondevice.core import daemon
+from ondevice.core import cherry, daemon
 
 def run():
+    cherry.start()
     daemon.runForever()
+    cherry.stop()

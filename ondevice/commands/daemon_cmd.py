@@ -16,4 +16,6 @@ from daemon import DaemonContext
 
 def run():
     with DaemonContext():
+        cherry.start()
         daemon.runForever()
+        cherry.start()
