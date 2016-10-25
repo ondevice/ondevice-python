@@ -40,14 +40,22 @@ def getCopy():
     with _lock:
         return copy.deepcopy(_state)
 
-def remove(path, key):
+def remove(path, *keys):
     global _lock
     with _lock:
         parent = _getPath(path, False)
-        del parent[key]
+        for key in keys:
+            del parent[key]
 
 def set(path, key, value):
     global _lock
     with _lock:
         parent = _getPath(path, True)
         parent[key] = value
+
+def setAll(path, **kwargs):
+    global _lock
+    with _lock:
+        parent = _getPath(path, True)
+        for k,v in kwargs.items():
+            parent[k] = v
