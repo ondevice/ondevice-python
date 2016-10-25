@@ -1,3 +1,5 @@
+from ondevice.core import state
+
 import logging
 import threading
 
@@ -10,11 +12,17 @@ class BackgroundThread():
     - stopping: after a call to stop()
     - finished: after target() has finished
     """
-    def __init__(self, target, stopFn):
+    def __init__(self, target, stopFn, args=(), kwargs={}):
+        """ Create a BackgroundThread object
+        - target: Thread function
+        - stopFn: Function to gracefully stop the thread function (`target`) - will be called when invoking .stop()
+        - args:  arguments to pass to target()
+        - kwargs: keyword arguments to pass to target() """
+
         self.target = target
         self.stopFn = stopFn
         self._listeners = {}
-        self._thread = threading.Thread(target=self.run)
+        self._thread = threading.Thread(target=self.run, args=args, kwargs=kwargs)
 
     def _emit(self, event, *args, **kwargs):
         listeners = list(self._listeners[event]) if event in self._listeners else []
@@ -25,9 +33,18 @@ class BackgroundThread():
 
     def run(self):
         """ Runs the target function (don't call this directly unless you want the target function be run in the current thread) """
+
+        #
+        state.add('threads', 'count', 1)
+        threadId = state.add('threads', 'seq', 1)
+        state.set('threads.info', threadId, {})
         self._emit('running')
-        self.target()
-        self._emit('finished')
+        try:
+            self.target()
+        finally:
+            self._emit('finished')
+            state.remove('threads.info', threadId)
+            state.add('threads', 'count', -1)
 
     def addListener(self, event, fn):
         if event not in ['started', 'running', 'stopping', 'finished']:
@@ -38,6 +55,8 @@ class BackgroundThread():
         self._listeners[event].add(fn)
 
     def addListenerObject(self, obj):
+        """ Helper function to bind all signals to predefined methods of `obj` (if they exist)
+         - mainly used for testing """
         fns = {'threadStarted': 'started', 'threadRunning':'running', 'threadStopping':'stopping', 'threadFinished':'finished'}
         for fn,event in fns.items():
             if hasattr(obj, fn):
@@ -53,6 +72,7 @@ class BackgroundThread():
         self._emit('started')
 
     def stop(self):
+        """ call the stopFn passed to the constructor and emit the 'stopping' signal """
         self.stopFn()
         self._emit('stopping')
 
