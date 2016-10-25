@@ -38,8 +38,15 @@ class Client(ModuleClient):
                 self._conn.sendEOF()
                 return
 
+    def stopLocal(self):
+        """ Closes stdin to get out of the runLocal() loop """
+        self.getConsoleBuffer(sys.stdin).close()
+
 class Service(ModuleService):
     def runLocal(self):
+        pass
+
+    def stopLocal(self):
         pass
 
     def onMessage(self, data):

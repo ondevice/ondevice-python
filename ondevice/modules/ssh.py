@@ -78,8 +78,9 @@ class Client_tunnel(ModuleClient):
 
 class Service(ModuleService):
     def runLocal(self):
+        """ Connect to the local SSH server (on port 22) and send all data we get from it over the tunnel """
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # TODO make me configurable
+        # TODO make host+port configurable
         # TODO use a timeout; raise an exception on error
         self._sock.connect(('localhost', 22))
         logging.debug("connected to SSH server: {0} -> {1}".format(self._sock.getsockname(), self._sock.getpeername()))
