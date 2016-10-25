@@ -1,4 +1,4 @@
-from ondevice.core import config, exception, service
+from ondevice.core import config, exception, service, thread
 from ondevice.core.tunnel import Connection, Response
 
 import imp
@@ -7,7 +7,6 @@ import logging
 import os
 import pkgutil
 import re
-from threading import Thread
 
 class Endpoint:
     def getConsoleBuffer(self, stream):
@@ -29,13 +28,13 @@ class Endpoint:
             return rc
 
     def startRemote(self):
-        self._remoteThread = Thread(target = self.runRemote)
+        self._remoteThread = thread.BackgroundThread(self.runRemote, self.stopRemote)
         self._remoteThread.start()
 
     def startLocal(self):
         args = ()
         if hasattr(self, '_args'): args = self._args
-        self._localThread = Thread(target = self.runLocal, args=args)
+        self._localThread = thread.BackgroundThread(self.runLocal, self.stopLocal, args=args)
         self._localThread.start()
 
     def onMessage(self, data):
@@ -43,6 +42,10 @@ class Endpoint:
 
     def runRemote(self):
         self._conn.run()
+
+    def stopRemote(self):
+        """ Closes the tunnel connection """
+        self._conn.close()
 
 class ModuleClient(Endpoint):
     def __init__(self, devId, protocol, svcName, args):
