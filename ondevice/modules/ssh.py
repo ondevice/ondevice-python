@@ -100,6 +100,11 @@ class Service(ModuleService):
                     break
                 else: raise e
 
+    def stopLocal(self):
+        """ stops the loop in runLocal() by closing the SSH socket """
+        self._sock.shutdown(socket.SHUT_RDWR)
+        self._sock.close()
+
     def onClose(self):
         ModuleService.onClose(self)
         logging.debug("closing SSH client socket ({0} -> {1})".format(self._sock.getsockname(), self._sock.getpeername()))
