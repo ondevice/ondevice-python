@@ -10,6 +10,7 @@ import cherrypy
 import json
 import logging
 import os
+import threading
 from six.moves import urllib
 
 state = {}
@@ -30,13 +31,20 @@ class ControlSocket:
             'version': ondevice.getVersion()
         }
 
-        # TODO add daemon status + device id
-
+        stateKeys = ['device']
         if full:
-            connections = []
-            threads = []
-            for key in ['connections', 'threads']:
-                rc[key] = s[key] if key in s else None
+            stateKeys.extend(['connections'])
+
+            if 'threads' in full:
+                # print system threads instead of BackgroundThread instances
+                rc['threads'] = []
+                for t in threading.enumerate():
+                    rc['threads'].append({'name': t.name, 'daemon': t.daemon, 'id': t.ident})
+            else:
+                stateKeys.append('threads')
+
+        for key in stateKeys:
+            rc[key] = s[key] if key in s else None
 
         return self._toJson(rc)
 
