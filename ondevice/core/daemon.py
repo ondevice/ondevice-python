@@ -1,4 +1,4 @@
-from ondevice.core import config, sock, service
+from ondevice.core import config, sock, service, state
 from ondevice import modules
 
 import filelock
@@ -34,6 +34,7 @@ class Daemon(sock.Socket):
 			elif msg._type == 'hello':
 				assert not self._connectionSucceeded
 				logging.info("Connection established, online as '%s'", msg.name)
+				state.setAll('device', state='online', devId=msg.name)
 				config.setDeviceId(msg.name)
 				self.key = msg.devId
 				self.sid = msg.sid
@@ -94,6 +95,7 @@ class Daemon(sock.Socket):
 	def run(self):
 		self._connectionSucceeded = False
 		sock.Socket.run(self)
+		state.remove('device', 'state', 'devId')
 		return self._connectionSucceeded
 
 	def send(self, msg):
@@ -143,6 +145,7 @@ def _runForever():
 			# TODO right now it's impossible to reuse Daemon objects (since the URL's set in the constructor but the device key might change afterwards)
 			daemon = Daemon(sid=sid)
 			if daemon.run() == True:
+				state.setAll('device', state='reconnecting')
 				retryDelay = 10
 			if daemon._abortMsg != None:
 				logging.info(daemon._abortMsg)
