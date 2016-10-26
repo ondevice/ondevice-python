@@ -63,7 +63,7 @@ class ModuleService(Endpoint):
         self._conn = Response(info, listener=self)
 
     def onClose(self):
-        logging.info("Connection closed (bytes sent=%d, received=%d)", self._conn.bytesSent, self._conn.bytesReceived)
+        logging.info("Connection closed (bytes sent=%d, received=%d)", self._conn.info.bytesSent, self._conn.info.bytesReceived)
 
 def exists(name):
     return name in listModules()
