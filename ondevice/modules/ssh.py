@@ -29,15 +29,13 @@ class Client(ModuleClient):
     'onclient connect ssh:tunnel' """
 
     def runLocal(self, *args):
-        params = self._params
-        devId = params['devId']
-        protocol = params['protocol']
-        svcName = params['svcName']
+        info = self._info
+        devId = info.devId
+        protocol = info.protocol
+        svcName = info.service
 
         # TODO use the dynamic module name
         proxyCmd = [ sys.argv[0], 'connect', '{0}:tunnel@{1}'.format(protocol, svcName), devId ]
-        if 'auth' in params:
-            proxyCmd.insert(1, '--auth={0}'.format(params['auth']))
 
         ssh = subprocess.Popen(['ssh', '-o', 'ProxyCommand={0}'.format(' '.join(proxyCmd)), 'ondevice:{0}'.format(devId)]+list(args), stdin=None, stdout=None, stderr=None)
         return ssh.wait()

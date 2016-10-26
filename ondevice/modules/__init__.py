@@ -1,5 +1,5 @@
 from ondevice.core import config, exception, service, thread
-from ondevice.core.tunnel import Connection, Response
+from ondevice.core.tunnel import Connection, Response, TunnelInfo
 
 import imp
 import io
@@ -48,11 +48,9 @@ class Endpoint:
         self._conn.close()
 
 class ModuleClient(Endpoint):
-    def __init__(self, devId, protocol, svcName, args):
+    def __init__(self, info, args):
         self._args = args
-
-        self._params = { 'devId': devId, 'svcName': svcName }
-        self._conn = Connection(devId, protocol, svcName, listener=self)
+        self._conn = Connection(info, listener=self)
 
     def onClose(self):
         raise exception.ImplementationError("onClose not implemented!")
@@ -61,8 +59,8 @@ class ModuleClient(Endpoint):
         raise exception.ImplementationError("onEOF not implemented!")
 
 class ModuleService(Endpoint):
-    def __init__(self, brokerUrl, tunnelId, devId):
-        self._conn = Response(brokerUrl, tunnelId, devId, listener=self)
+    def __init__(self, info):
+        self._conn = Response(info, listener=self)
 
     def onClose(self):
         logging.info("Connection closed (bytes sent=%d, received=%d)", self._conn.bytesSent, self._conn.bytesReceived)
@@ -110,16 +108,18 @@ def loadClient2(devId, modName, suffix, svcName, args):
     if not hasattr(mod, className):
         raise exception.UsageError("Module '{0}' doesn't have a '{1}' endpoint".format(modName, suffix))
     clazz = getattr(mod, className)
-    rc = clazz(devId=devId, protocol=modName, svcName=svcName, args=args)
-    rc._params.update({'protocol': modName, 'endpoint': suffix })
+    info=TunnelInfo(devId=devId, protocol=modName, service=svcName, clientUser=config.getClientUser())
+    rc = clazz(info, args=args)
     return rc
 
-def getService(req, devId):
+def getService(req, devKey):
     svc = service.get(req.service)
     if svc['protocol'] != req.protocol:
         raise Exception("Error: protocol mismatch (expected={0}, actual={1})".format(svc['protocol'], req.protocol))
     mod = load(req.protocol)
-    rc = mod.Service(brokerUrl=req.broker, tunnelId=req.tunnelId, devId=devId)
+    info = TunnelInfo(devKey=devKey, tunnelId=req.tunnelId, brokerUrl=req.broker,
+            service=req.service, protocol=req.protocol, clientUser=req.clientUser)
+    rc = mod.Service(info)
     return rc
 
 def _parseProtocolString(protocolStr):

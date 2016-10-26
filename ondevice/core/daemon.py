@@ -18,14 +18,14 @@ class Daemon(sock.Socket):
 		self.sid = sid
 
 		key = config.getDeviceKey()
-		kwargs = {}
+		params = {}
 		if key != None:
-			kwargs['id'] = key
+			params['id'] = key
 		if sid != None:
-			kwargs['sid'] = sid
+			params['sid'] = sid
 
 		auth = (config.getDeviceUser(), config.getDeviceAuth())
-		sock.Socket.__init__(self, '/serve', auth=auth, **kwargs)
+		sock.Socket.__init__(self, '/serve', auth=auth, **params)
 
 	def onMessage(self, msg):
 		try:

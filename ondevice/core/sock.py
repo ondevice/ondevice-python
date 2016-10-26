@@ -1,14 +1,14 @@
 from ondevice.core import exception
 import ondevice
 
-from six.moves import urllib_parse
+from six.moves import urllib
 import base64
 import json
 import logging
 import ssl
 import websocket
 
-BASE_URL=urllib_parse.urlparse('wss://api.ondevice.io/v1.1')
+BASE_URL=urllib.parse.urlparse('wss://api.ondevice.io/v1.1')
 #BASE_URL=urllib_parse.urlparse('ws://localhost:8080/v1.1')
 #BASE_URL=urllib.parse.urlparse('wss://local.ondevice.io:8443/v1.1')
 class Message:
@@ -21,15 +21,21 @@ class Message:
     def __repr__(self): return "Message({0})".format(self._data)
 
 class Socket:
-    def __init__(self, endpoint, baseUrl=None, auth=None, **params):
+    """ Represents a websocket connection (to /serve, /connect or /accept) """
+    def __init__(self, endpoint, auth, baseUrl=None, **params):
+        """ Creates a Socket instance
+        - endpoint: API endpoint (the part of the URL after baseUrl, e.g. '/serve')
+        - auth: a username/password string tuple
+        - baseUrl: replaces the BASE_URL if specified (necessary for '/accept' calls since those have to connect to the same API server as their '/connect' counterparts)
+        - **params: URL params
+        """
         global BASE_URL
 
         # TODO make base URL configurable
-        # TODO do proper URL handling
         if baseUrl == None:
             baseUrl = BASE_URL.geturl()
 
-        paramStr = '&'.join('{0}={1}'.format(k,v) for k, v in params.items())
+        paramStr = urllib.parse.urlencode(params)
         self._url = '{baseUrl}{endpoint}/websocket?{paramStr}'.format(**locals())
 
         headers = []

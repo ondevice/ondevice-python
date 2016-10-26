@@ -1,22 +1,57 @@
-from ondevice.core import config, sock, thread
+from ondevice.core import config, sock, thread, state
 
 import logging
-import sys
 import threading
 import time
 
+class TunnelInfo:
+    """ Contains information on a tunnel connection.
+    Mandatory attributes:
+    - service
+    - protocol
+    - devId/clientUser (depending on whether we're used on the client or device side)
+    
+    Optional attributes:
+    - bytesSent
+    - bytesReceived
+    - clientUser """
+
+    def __init__(self, **kwargs):
+        # make sure we have at least the following arguments:
+        for expectedKeys in 'devId/clientUser,service,protocol'.split(','):
+            found = False
+            for key in expectedKeys.split('/'):
+                if key in kwargs:
+                    found = True
+                    break
+                
+            if not found:
+                raise Exception("Missing TunnelInfo argument: '{0}' (only got: {1})".format(expectedKeys, kwargs.keys()))
+
+        self.bytesSent = 0
+        self.bytesReceived = 0
+        self.connectedAt = time.time()
+
+        # set the object attributes
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+
 class TunnelSocket(sock.Socket):
     """ Base class for Connection and Response. """
-    def __init__(self, *args, **kwargs):
-        if 'listener' in kwargs:
-            self.listener = kwargs.pop('listener')
+    def __init__(self, endpoint, info, auth, listener=None, **params):
+        if listener != None:
+            self.listener = listener
         self._eof = False
         self._lock = threading.Lock()
         self._lock.acquire() # lock initially (will be released once the server confirms the connection)
         self.lastMsg = time.time()
         self.bytesReceived = 0
         self.bytesSent = 0
-        sock.Socket.__init__(self, *args, **kwargs)
+        self.info = info
+
+        baseUrl = info.brokerUrl if hasattr(info, 'brokerUrl') else None
+        sock.Socket.__init__(self, endpoint, auth, baseurl=baseUrl, **params)
         self._pingTask = thread.FixedDelayTask(self._ping, 60)
 
     def _callListener(self, method, *args, **kwargs):
@@ -34,6 +69,7 @@ class TunnelSocket(sock.Socket):
     def _onMessage(self, ws, messageData):
         self.lastMsg = time.time()
         self.bytesReceived += len(messageData)
+        self.info.bytesReceived = self.bytesReceived
         colonPos = messageData.find(b':')
         if colonPos < 0:
             raise Exception('Missing message header')
@@ -145,6 +181,7 @@ class TunnelSocket(sock.Socket):
             data = b'data:'+msg
 
             self.bytesSent += len(data)
+            self.info.bytesSent = self.bytesSent
             self._ws.send(data, 2) # OPCODE_BINARY
 
     def sendEOF(self):
@@ -153,10 +190,11 @@ class TunnelSocket(sock.Socket):
             self._ws.send(b'meta:EOF', 2) #OPCODE_BINARY
 
 class Connection(TunnelSocket):
-    def __init__(self, dev, protocol, service, listener=None):
-        user,dev = parseDeviceId(dev)
+    def __init__(self, info, listener=None):
+        user,dev = parseDeviceId(info.devId)
         auth = config.getClientAuth(user)
-        TunnelSocket.__init__(self, '/connect', auth=auth, dev=dev, protocol=protocol, service=service, listener=listener)
+        #def __init__(self, endpoint, info, auth, listener=None, **params):
+        TunnelSocket.__init__(self, '/connect', info, auth=auth, listener=listener, dev=info.devId, protocol=info.protocol, service=info.service)
 
     def _ping(self):
         logging.debug('sending tunnel ping')
@@ -164,14 +202,26 @@ class Connection(TunnelSocket):
         TunnelSocket._ping(self)
 
 class Response(TunnelSocket):
-    def __init__(self, broker, tunnelId, dev, listener=None):
+    def __init__(self, info, listener=None):
         auth = (config.getDeviceUser(), config.getDeviceAuth())
-        TunnelSocket.__init__(self, '/accept', tunnel=tunnelId, dev=dev, baseUrl=broker, listener=listener, auth=auth)
+        TunnelSocket.__init__(self, '/accept', info, auth=auth, listener=listener, tunnel=info.tunnelId, dev=info.devKey)
 
     def onEOF(self):
         """ Got an EOF from the remote host -> closing the websocket """
         with self._lock:
             self._ws.close()
+
+    def _onClose(self, ws):
+        state.add('connections', 'count', -1)
+        state.remove('connections', 'info', self.info.connId)
+        return TunnelSocket._onClose(self, ws)
+
+    def _onConnected(self):
+        state.add('connections', 'count', 1)
+        self.info.connId = state.add('connections', 'seq', 1)
+        state.set('connections.info', self.info.connId, self.info.__dict__)
+        return TunnelSocket._onConnected(self)
+
 
 def qualifyDeviceId(name):
     '''prepends the user name to unqualified device IDs
