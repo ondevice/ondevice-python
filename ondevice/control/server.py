@@ -42,7 +42,8 @@ class ControlSocket:
                 stateKeys.append('threads')
 
         for key in stateKeys:
-            rc[key] = s[key] if key in s else None
+            if key in s:
+                rc[key] = s[key]
 
         return self._toJson(rc)
 
