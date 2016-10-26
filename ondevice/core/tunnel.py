@@ -47,10 +47,13 @@ class TunnelSocket(sock.Socket):
         self._lock.acquire() # lock initially (will be released once the server confirms the connection)
         self.lastMsg = time.time()
         self.info = info
+        self.info.connId = state.add('connections', 'seq', 1)
 
         baseUrl = info.brokerUrl if hasattr(info, 'brokerUrl') else None
         sock.Socket.__init__(self, endpoint, auth, baseurl=baseUrl, **params)
-        self._pingTask = thread.FixedDelayTask(self._ping, 60)
+
+        taskName = 'conn_{0}:ping'.format(info.connId)
+        self._pingTask = thread.FixedDelayTask(self._ping, 60, name=taskName)
 
     def _callListener(self, method, *args, **kwargs):
         if self.listener != None:
@@ -214,7 +217,6 @@ class Response(TunnelSocket):
 
     def _onConnected(self):
         state.add('connections', 'count', 1)
-        self.info.connId = state.add('connections', 'seq', 1)
         state.set('connections.info', self.info.connId, self.info.__dict__)
         return TunnelSocket._onConnected(self)
 

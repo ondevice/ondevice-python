@@ -9,6 +9,9 @@ import pkgutil
 import re
 
 class Endpoint:
+    def __init__(self, info):
+        self.info = info
+
     def getConsoleBuffer(self, stream):
         """ Compatibilty code for py2/3 (returns stream.buffer in py3 and io.BufferedReader/BufferedWriter in py2) """
         if hasattr(stream, 'buffer'):
@@ -28,17 +31,19 @@ class Endpoint:
             return rc
 
     def startRemote(self):
-        self._remoteThread = thread.BackgroundThread(self.runRemote, self.stopRemote)
+        threadName = 'conn_{0}:remote'.format(self.info.connId)
+        self._remoteThread = thread.BackgroundThread(self.runRemote, self.stopRemote, name=threadName)
         self._remoteThread.start()
 
     def startLocal(self):
-        args = ()
-        if hasattr(self, '_args'): args = self._args
-        self._localThread = thread.BackgroundThread(self.runLocal, self.stopLocal, args=args)
+        threadName = 'conn_{0}:local'.format(self.info.connId)
+        args = self._args if hasattr(self, '_args') else ()
+
+        self._localThread = thread.BackgroundThread(self.runLocal, self.stopLocal, name=threadName, args=args)
         self._localThread.start()
 
     def onMessage(self, data):
-        raise exception.ImplementationError("This module doesn't implement the 'onMessage' endpoint!?!")
+        raise exception.ImplementationError("This module doesn't implement the 'onMessage' method!?!")
 
     def runRemote(self):
         self._conn.run()
@@ -49,6 +54,7 @@ class Endpoint:
 
 class ModuleClient(Endpoint):
     def __init__(self, info, args):
+        Endpoint.__init__(self, info)
         self._args = args
         self._conn = Connection(info, listener=self)
 
@@ -60,10 +66,11 @@ class ModuleClient(Endpoint):
 
 class ModuleService(Endpoint):
     def __init__(self, info):
+        Endpoint.__init__(self, info)
         self._conn = Response(info, listener=self)
 
     def onClose(self):
-        logging.info("Connection closed (bytes sent=%d, received=%d)", self._conn.info.bytesSent, self._conn.info.bytesReceived)
+        logging.info("Connection closed (bytes sent=%d, received=%d)", self._conn.bytesSent, self._conn.bytesReceived)
 
 def exists(name):
     return name in listModules()

@@ -2,6 +2,18 @@ from ondevice.core import state
 
 import logging
 import threading
+import time
+
+class ThreadInfo:
+    """ Stores some information on each BackgroundThread instance """
+    def __init__(self, **kwargs):
+        for key in 'id,name'.split(','):
+            if key not in kwargs:
+                raise KeyError("Missing required ThreadInfo attribute: '{0}' (got: {1})", key, kwargs.keys())
+
+        for k,v in kwargs.items():
+            setattr(self, k, v)
+
 
 class BackgroundThread():
     """ Thin wrapper around threading.Thread with simple event support.
@@ -12,17 +24,21 @@ class BackgroundThread():
     - stopping: after a call to stop()
     - finished: after target() has finished
     """
-    def __init__(self, target, stopFn, args=(), kwargs={}):
+    def __init__(self, target, stopFn, name, args=(), kwargs={}):
         """ Create a BackgroundThread object
         - target: Thread function
         - stopFn: Function to gracefully stop the thread function (`target`) - will be called when invoking .stop()
+        - name: Thread name (doesn't have to be unique)
         - args:  arguments to pass to target()
         - kwargs: keyword arguments to pass to target() """
+
+        threadId = state.add('threads', 'seq', 1)
+        self.info = ThreadInfo(name=name, id=threadId)
 
         self.target = target
         self.stopFn = stopFn
         self._listeners = {}
-        self._thread = threading.Thread(target=self.run, args=args, kwargs=kwargs)
+        self._thread = threading.Thread(target=self.run, name=name, args=args, kwargs=kwargs)
 
     def _emit(self, event, *args, **kwargs):
         listeners = list(self._listeners[event]) if event in self._listeners else []
@@ -36,14 +52,14 @@ class BackgroundThread():
 
         #
         state.add('threads', 'count', 1)
-        threadId = state.add('threads', 'seq', 1)
-        state.set('threads.info', threadId, {})
+        self.info.startedAt = time.time()
+        state.set('threads.info', self.info.id, self.info.__dict__)
         self._emit('running')
         try:
             self.target()
         finally:
             self._emit('finished')
-            state.remove('threads.info', threadId)
+            state.remove('threads.info', self.info.id)
             state.add('threads', 'count', -1)
 
     def addListener(self, event, fn):
@@ -81,13 +97,13 @@ class FixedDelayTask(BackgroundThread):
     """ Represents a repeating task that runs with a fixed delay (delay)
     in a background thread """
 
-    def __init__(self, target, interval, *args, **kwargs):
+    def __init__(self, target, interval, name, *args, **kwargs):
         self._target = target
         self.interval = interval
         self.args = args
         self.kwargs = kwargs
         self._event = threading.Event()
-        BackgroundThread.__init__(self, self._run, self._stop)
+        BackgroundThread.__init__(self, self._run, self._stop, name)
 
     def _run(self):
         while not self._event.wait(self.interval):
