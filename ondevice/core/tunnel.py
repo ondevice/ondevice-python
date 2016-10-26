@@ -144,7 +144,7 @@ class TunnelSocket(sock.Socket):
     def _ping(self):
         """ check that the last ping/message has been received within the last five minutes """
         now = time.time()
-        logging.info("last ping received: {0}s ago".format(now - self.lastMsg))
+        logging.debug("last ping received: {0}s ago".format(now - self.lastMsg))
         if now - self.lastMsg > 300:
             self.onError(-1, 'Connection lost')
             self._ws.close()
