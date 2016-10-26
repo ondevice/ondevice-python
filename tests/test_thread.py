@@ -57,7 +57,7 @@ class BackgroundThreadTest(TestCase):
 			target = listener.target
 		if stopFn == None:
 			stopFn = listener.stopFn
-		rc = thread.BackgroundThread(target, stopFn)
+		rc = thread.BackgroundThread(target, stopFn, 'someThread')
 		rc.addListenerObject(listener)
 		rc._log = listener
 		return rc
