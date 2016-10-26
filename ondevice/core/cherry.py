@@ -33,7 +33,7 @@ class ControlSocket:
 
         stateKeys = ['device']
         if full:
-            stateKeys.extend(['connections'])
+            stateKeys.extend(['tunnels'])
 
             if 'threads' in full:
                 # print system threads instead of BackgroundThread instances

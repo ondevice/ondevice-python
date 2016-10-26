@@ -47,7 +47,7 @@ class TunnelSocket(sock.Socket):
         self._lock.acquire() # lock initially (will be released once the server confirms the connection)
         self.lastMsg = time.time()
         self.info = info
-        self.info.connId = state.add('connections', 'seq', 1)
+        self.info.connId = state.add('tunnels', 'seq', 1)
 
         baseUrl = info.brokerUrl if hasattr(info, 'brokerUrl') else None
         sock.Socket.__init__(self, endpoint, auth, baseurl=baseUrl, **params)
@@ -148,7 +148,7 @@ class TunnelSocket(sock.Socket):
         if now - self.lastMsg > 300:
             self.onError(-1, 'Connection lost')
             self._ws.close()
-            raise Exception("connection timed out :(")
+            raise Exception("Connection timed out :(")
 
     def _takeHeader(self, msg):
         colonPos = msg.find(b':')
@@ -211,13 +211,13 @@ class Response(TunnelSocket):
             self._ws.close()
 
     def _onClose(self, ws):
-        state.add('connections', 'count', -1)
-        state.remove('connections', 'info', self.info.connId)
+        state.add('tunnels', 'count', -1)
+        state.remove('tunnels', 'info', self.info.connId)
         return TunnelSocket._onClose(self, ws)
 
     def _onConnected(self):
-        state.add('connections', 'count', 1)
-        state.set('connections.info', self.info.connId, self.info.__dict__)
+        state.add('tunnels', 'count', 1)
+        state.set('tunnels.info', self.info.connId, self.info.__dict__)
         return TunnelSocket._onConnected(self)
 
 
