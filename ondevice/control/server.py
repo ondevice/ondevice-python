@@ -13,8 +13,6 @@ import os
 import threading
 from six.moves import urllib
 
-state = {}
-
 class ControlSocket:
     def _toJson(self, data):
         cherrypy.response.headers['Content-Type'] = 'application/json'
@@ -50,11 +48,6 @@ class ControlSocket:
 
 _cherry = None
 
-
-
-def setState(path, key, value):
-    parent = _getPath(key, True)
-    parent[key] = value
 
 def start(ondeviceHost=None):
     global _cherry

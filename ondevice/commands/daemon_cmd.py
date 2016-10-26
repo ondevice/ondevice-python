@@ -11,11 +11,12 @@ usage = {
 }
 
 from ondevice.core import daemon
+from ondevice import control
 
 from daemon import DaemonContext
 
 def run():
     with DaemonContext():
-        cherry.start()
+        control.server.start()
         daemon.runForever()
-        cherry.start()
+        control.server.start()
