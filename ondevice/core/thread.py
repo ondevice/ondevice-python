@@ -62,7 +62,7 @@ class BackgroundThread():
             if hasattr(obj, fn):
                 self.addListener(event, getattr(obj, fn))
 
-    def removeListener(event, fn):
+    def removeListener(self, event, fn):
         if event not in self._listeners:
             return # Cant' remove something that isn't there
         self._listeners[event].remove(fn)
