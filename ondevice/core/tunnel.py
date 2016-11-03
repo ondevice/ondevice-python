@@ -192,8 +192,15 @@ class Connection(TunnelSocket):
     def __init__(self, info, listener=None):
         user,dev = parseDeviceId(info.devId)
         auth = config.getClientAuth(user)
+
+        if auth[0] == user:
+            # device belongs to local user (or at least to a user we have credentials for) -> use the unqualified devId
+            devId = dev
+        else:
+            devId = info.devId
+            
         #def __init__(self, endpoint, info, auth, listener=None, **params):
-        TunnelSocket.__init__(self, '/connect', info, auth=auth, listener=listener, dev=info.devId, protocol=info.protocol, service=info.service)
+        TunnelSocket.__init__(self, '/connect', info, auth=auth, listener=listener, dev=devId, protocol=info.protocol, service=info.service)
 
     def _ping(self):
         logging.debug('sending tunnel ping')
