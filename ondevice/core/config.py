@@ -40,6 +40,10 @@ def addSection(name):
     return _getConfig(True).add_section(name)
 
 def getClientAuth(tgtUser=None):
+    """ Returns a (username, password) client access token tuple.
+    If you specify a tgtUser and your ondevice.conf contains matching credentials, those will be returned instead.
+    """
+
     clientUser = getClientUser()
     if tgtUser != None:
         if tgtUser != clientUser:
