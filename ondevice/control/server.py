@@ -49,20 +49,24 @@ class ControlSocket:
 
 _cherry = None
 
+def _getSocketUrl():
+    rc = None
+    if 'ONDEVICE_HOST' in os.environ:
+        rc = os.environ['ONDEVICE_HOST']
+    if rc == None:
+        rc = 'unix://'+config._getConfigPath('ondevice.sock')
+    return rc
 
-def start(ondeviceHost=None):
+
+def start():
     global _cherry
 
     if _cherry != None:
         logging.info("Cherrypy has already been started")
         return
 
-    if ondeviceHost == None and 'ONDEVICE_HOST' in os.environ:
-        ondeviceHost = os.environ['ONDEVICE_HOST']
-    if ondeviceHost == None:
-        ondeviceHost = 'unix://'+config._getConfigPath('ondevice.sock')
-
-    url = urllib.parse.urlparse(ondeviceHost)
+    socketUrl = _getSocketUrl()
+    url = urllib.parse.urlparse(socketUrl)
 
     if url.scheme == 'unix':
         bindAddr = url.path
@@ -77,3 +81,11 @@ def start(ondeviceHost=None):
 
 def stop():
     cherrypy.server.stop()
+
+    # remove unix socket file
+    sock = urllib.parse.urlsplit(_getSocketUrl())
+    if sock.scheme == 'unix':
+        if os.path.exists(sock.path):
+            os.unlink(sock.path)
+    
+    
