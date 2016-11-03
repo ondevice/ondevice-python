@@ -45,7 +45,7 @@ class TunnelSocket(sock.Socket):
         self._eof = False
         self._lock = threading.Lock()
         self._lock.acquire() # lock initially (will be released once the server confirms the connection)
-        self.lastMsg = time.time()
+        self.lastPing = None
         self.info = info
         self.info.connId = state.add('tunnels', 'seq', 1)
 
@@ -68,7 +68,6 @@ class TunnelSocket(sock.Socket):
             and callable(getattr(self.listener, method)))
 
     def _onMessage(self, ws, messageData):
-        self.lastMsg = time.time()
         self.info.bytesReceived += len(messageData)
         colonPos = messageData.find(b':')
         if colonPos < 0:
@@ -101,12 +100,14 @@ class TunnelSocket(sock.Socket):
                 self.onEOF()
             elif msgType == b'ping':
                 logging.debug("-- got ping message --")
+                self.lastPing = time.time()
+
                 pongMsg = b'meta:pong'
                 if messageData != None:
                     pongMsg += messageData
                 self._ws.send(pongMsg, 2) #OPCODE_BINARY
             elif msgType == b'pong':
-                pass # ignore them for now
+                self.lastPing = time.time()
             else:
                 raise Exception("Unsupported meta message: '{0}'".format(messageData))
         elif msgType == b'error':
@@ -142,13 +143,16 @@ class TunnelSocket(sock.Socket):
         return rc
 
     def _ping(self):
-        """ check that the last ping/message has been received within the last five minutes """
-        now = time.time()
-        logging.debug("last ping received: {0}s ago".format(now - self.lastMsg))
-        if now - self.lastMsg > 300:
-            self.onError(-1, 'Connection lost')
-            self._ws.close()
-            raise Exception("Connection timed out :(")
+        """ check that the last ping has been received within the last five minutes.
+        These checks will only start after at least one ping/pong was received.
+        That way older versions of the ondevice client can coexist with newer ones."""
+        if self.lastPing != None:
+            now = time.time()
+            logging.debug("last ping received: {0}s ago".format(now - self.lastPing))
+            if now - self.lastPing > 300:
+                self.onError(-1, 'Connection lost')
+                self._ws.close()
+                raise Exception("Connection timed out :(")
 
     def _takeHeader(self, msg):
         colonPos = msg.find(b':')
