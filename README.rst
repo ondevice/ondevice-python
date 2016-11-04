@@ -128,7 +128,7 @@ Each invocation returns the resulting property list; You can query the list usin
 
 There's currently one special property:
 
-- ``:desc``: set the device's description (will be shown online and in ``ondevice list``)
+- ``:title``: set the device's description (will be shown online and in ``ondevice list``)
 
 
 Requirements

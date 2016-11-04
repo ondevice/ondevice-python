@@ -9,7 +9,7 @@ Arguments:
 
 Examples:
 $ {cmd} list
-ID          State               IP          Version     Name
+ID          State               IP          Version     Title
 foo.dev1    OFFLINE (for 1h)    1.2.3.4     0.1dev6     Device 1
 foo.raspi   ONLINE (for 2d)     1.2.3.5     0.1dev6     Raspberry PI at home
 
@@ -48,8 +48,8 @@ def run(*args):
 #    elif '--raw' in args:
 #        print(json.dumps(resp))
     else:
-        fmt='{id:20s} {state:10s} {ip:15s} {version:10s} {name}'
-        print(fmt.format(id='ID',state='State', ip='IP', version='Version', name='Name'))
+        fmt='{id:20s} {state:10s} {ip:15s} {version:15s} {name}'
+        print(fmt.format(id='ID',state='State', ip='IP', version='Version', name='Title'))
 
         for dev in resp['devices']:
             if not 'name' in dev:
