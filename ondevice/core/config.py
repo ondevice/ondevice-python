@@ -58,13 +58,16 @@ def getClientAuth(tgtUser=None):
 def getClientUser():
     return getValue('client', 'user')
 
-def getDeviceAuth(): return getValue('device', 'auth')
+def getDeviceAuth():
+    envAuth = os.getenv("ONDEVICE_AUTH")
+    if envAuth != None:
+        # allow the credentials to be provided using environment variables
+        return envAuth
+    else:
+        return getValue('device', 'auth')
+
+
 def getDeviceKey():
-    # backwards compatibility - used to be called 'device.id' (2016-09-11)
-    if not hasValue('device', 'key') and hasValue('device', 'id'):
-        key = getValue('device', 'id')
-        setDeviceKey(key)
-        remove('device', 'id')
     return getValue('device', 'key')
 
 def getDeviceId():
@@ -74,12 +77,10 @@ def getDeviceId():
     return getValue('device', 'dev-id')
 
 def getDeviceUser():
-    # code to fix backwards compatibility
-    # TODO remove this snippet as soon as all devices are updated
-    if not hasValue('device', 'user') and hasValue('device', 'name'):
-        rc = getValue('device', 'name').split('/')[0]
-        setDeviceUser(rc)
-        return rc
+    envUser = os.getenv("ONDEVICE_USER")
+    if envUser != None:
+        # allow the credentials to be provided using environment variables
+        return envUser
     else:
         return getValue('device', 'user')
 
