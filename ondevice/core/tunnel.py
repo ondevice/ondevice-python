@@ -214,7 +214,7 @@ class Connection(TunnelSocket):
 class Response(TunnelSocket):
     def __init__(self, info, listener=None):
         auth = (config.getDeviceUser(), config.getDeviceAuth())
-        TunnelSocket.__init__(self, '/accept', info, auth=auth, listener=listener, tunnel=info.tunnelId, dev=info.devKey)
+        TunnelSocket.__init__(self, '/accept', info, auth=auth, listener=listener, tunnel=info.tunnelId, key=info.devKey)
 
     def onEOF(self):
         """ Got an EOF from the remote host -> closing the websocket """
