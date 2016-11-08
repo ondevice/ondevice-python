@@ -1,22 +1,44 @@
 """
 Run the ondevice daemon.
 
-See also: `ondevice help listen` (deprecated variant of `ondevice daemon`
-that stays in the foreground)
+Options:
+
+-f
+--foreground
+    Don't run as background daemon but keep attached to the terminal
+
 """
 
 usage = {
-    'msg': 'Run the ondevice daemon',
+    'msg': 'Run the ondevice device daemon',
     'group': 'device'
 }
 
-from ondevice.core import daemon
+from ondevice.core import daemon, exception
 from ondevice import control
 
 from daemon import DaemonContext
 
-def run():
-    with DaemonContext():
-        control.server.start()
-        daemon.runForever()
-        control.server.start()
+import getopt
+
+def runDaemon():
+    control.server.start()
+    daemon.runForever()
+    control.server.start()
+
+def run(*args):
+    opts, args = getopt.gnu_getopt(args, 'f', ('foreground'))
+    foreground = False
+
+    if len(args) > 0:
+        raise exception.UsageError("Extra arguments: {0}".format(args))
+
+    for k,v in opts:
+        if k in ['-f', '--foreground']:
+            foreground = True
+
+    if foreground:
+        runDaemon()
+    else:
+        with DaemonContext():
+            runDaemon()
