@@ -1,6 +1,15 @@
 ondevice client changelog
 =========================
 
+## v0.3 (2016-11-10)
+
+- added `ondevice.sock` UNIX socket
+- added `/state` socket endpoint (shows info about the device daemon, current connections, etc.)
+- reimplemented `ondevice status` to query `ondevice.sock` instead of making guesses about the daemon state
+- we're sending ping messages through tunnels too
+- added `--foreground` and `--configDir` arguments to `ondevice daemon`
+- added support for setting the device authentiction using environment variables (in preparation of the ondevice-daemon debian package)
+
 ## v0.2.6
 
 Bugfix release:
