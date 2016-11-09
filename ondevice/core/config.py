@@ -7,6 +7,13 @@ from ondevice.core import exception
 
 import os
 
+
+# default config directory:
+#   ~/.config/ondevice/
+# This works well on macOS and Linux
+# TODO add support for further OSs
+configDir = os.path.join(os.path.expanduser('~'), '.config/ondevice')
+
 class Overrides:
     def __init__(self):
         self.data = {}
@@ -100,6 +107,11 @@ def setDeviceKey(key): setValue('device', 'key', key)
 def setDeviceId(slug): setValue('device', 'dev-id', slug)
 def setDeviceUser(name): setValue('device', 'user', name)
 
+def invalidateCache():
+    """ Invalidate the in-memory cache of the configuration
+    (forcing a re-read the next time any getter or setter is called) """
+    global _config
+    _config = None
 
 def _getConfig(reread=False):
     global _config
@@ -119,20 +131,13 @@ def _getConfig(reread=False):
     return _config
 
 def _getConfigPath(filename):
-    # TODO add proper support for other OSes
-    # TODO handle missing ~/.config dir
-    homeDir = os.path.expanduser('~')
-    configDir = os.path.join(homeDir, '.config/ondevice')
+    global configDir
+
     if not os.path.isdir(configDir):
-        parentDir = os.path.join(homeDir, '.config/')
-        if not os.path.isdir(homeDir):
-            # it's not our job to also create the home directory,
-            # (it might even have unexpected implications)
-            # so if it doesn't exist, exit gracefully
-            raise exception.ConfigurationError("Can't find user's home directory ({0})".format(homeDir))
-        if not os.path.isdir(parentDir):
-            os.mkdir(parentDir)
-        os.mkdir(configDir)
+        try:
+            os.makedirs(configDir)
+        except OSError:
+            raise exception.ConfigurationError("Couldn't create config directory: {0}".format(configDir)) 
 
     return os.path.join(configDir, filename)
 

@@ -14,7 +14,7 @@ usage = {
     'group': 'device'
 }
 
-from ondevice.core import daemon, exception
+from ondevice.core import config, daemon, exception
 from ondevice import control
 
 from daemon import DaemonContext
@@ -27,14 +27,18 @@ def runDaemon():
     control.server.start()
 
 def run(*args):
-    opts, args = getopt.gnu_getopt(args, 'f', ('foreground'))
+    opts, args = getopt.gnu_getopt(args, 'C:f', ('configDir=', 'foreground'))
     foreground = False
 
     if len(args) > 0:
         raise exception.UsageError("Extra arguments: {0}".format(args))
 
     for k,v in opts:
-        if k in ['-f', '--foreground']:
+        if k in ['-C', '--configDir']:
+            config.configDir = v
+            config.invalidateCache()
+
+        elif k in ['-f', '--foreground']:
             foreground = True
 
     if foreground:
