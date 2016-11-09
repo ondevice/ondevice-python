@@ -5,43 +5,68 @@ Note that this command will include further information (like the daemon version
 in case we're querying a non-local daemon) in the future.
 
 Returns:
-- 0 if the daemon is running
-- 1 if it isn't
-- >1 on errors
+- 0 if the daemon is running and online
+- 1 if the daemon is running, but offline/reconnecting
+- 2 if the daemon is not running
+- >2 on errors
 """
 
 import ondevice
 from ondevice.core import daemon, exception
 from ondevice.control import client
 
+import getopt
+import json
 import logging
 
 usage = {
     'msg': 'prints information on the ondevice client and daemon',
 }
 
-def run():
-    rc = 0
+def run(*args):
+    jsonOutput = False
+    rc = 2 # assume it's not running
 
+    # parse commandline arguments
+    opts, args = getopt.gnu_getopt(args, '', ('json'))
+    for k,v in opts:
+        if k == '--json':
+            jsonOutput = True
+
+    state = {
+        'client': {
+            'version': ondevice.getVersion()
+        }
+    }
+    
     try:
-        state = client.getState(False)
+        s = client.getState(False)
+        s._data.update(state)
+        state = s
+        
+        rc = 1 # daemon is responding
+
         if 'device' in state:
-            print("Device:")
-            print("  ID: {0}".format(state.device.devId))
-            if state.device.state != 'online':
-                rc = 1
-        else:
-            rc = 1
+            if state.device.state == 'online':
+                rc = 0
 
     except exception.TransportError as e:
         # TODO actually check if the ondevice daemon is running (or if it was some other kind of TransportError)
-        rc = 1
+        rc = 2
     except Exception as e:
         # TODO improve error handling
         logging.error("Caught exception")
         rc = 2
 
-    print("Client:")
-    print("  version: {0}".format(ondevice.getVersion()))
+    # output
+    if jsonOutput:
+        print(json.dumps(state._data, indent=4))
+    else:
+        if 'device' in state:
+            print("Device:")
+            print("  ID: {0}".format(state.device.devId))
+            print("")
+        print("Client:")
+        print("  version: {0}".format(ondevice.getVersion()))
 
     return rc
