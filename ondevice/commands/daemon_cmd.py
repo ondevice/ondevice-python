@@ -3,6 +3,10 @@ Run the ondevice daemon.
 
 Options:
 
+-C <path>
+--configDir=<path>
+    Store configuration files in <path> instead of ~/.config/ondevice/
+
 -f
 --foreground
     Don't run as background daemon but keep attached to the terminal
@@ -15,16 +19,13 @@ usage = {
 }
 
 from ondevice.core import config, daemon, exception
-from ondevice import control
 
 from daemon import DaemonContext
 
 import getopt
 
 def runDaemon():
-    control.server.start()
     daemon.runForever()
-    control.server.start()
 
 def run(*args):
     opts, args = getopt.gnu_getopt(args, 'C:f', ('configDir=', 'foreground'))

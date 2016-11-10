@@ -1,5 +1,5 @@
 from ondevice.core import config, sock, service, state
-from ondevice import modules
+from ondevice import control, modules
 
 import filelock
 import json
@@ -144,6 +144,7 @@ def _runForever():
 		os.chmod(pidfile, 0o644)
 
 	try:
+		control.server.start()
 		while (True):
 			# TODO right now it's impossible to reuse Daemon objects (since the URL's set in the constructor but the device key might change afterwards)
 			daemon = Daemon(sid=sid)
@@ -160,4 +161,5 @@ def _runForever():
 				retryDelay = min(900, retryDelay*1.5)
 				sid = daemon.sid
 	finally:
+		control.server.stop()
 		os.unlink(pidfile)
