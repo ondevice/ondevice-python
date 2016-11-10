@@ -1,6 +1,13 @@
 ondevice client changelog
 =========================
 
+## v0.3.1 (2016-11-10)
+
+Bugfix release:
+- fixed some system-wide config issues
+- fixed issue with overwriting the control socket (was set up outside the FileLock)
+- explicitly calling chmod after writing to the various config files
+
 ## v0.3 (2016-11-10)
 
 - added `ondevice.sock` UNIX socket
