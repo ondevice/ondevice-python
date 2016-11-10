@@ -33,15 +33,15 @@ def run(*args):
         if k == '--json':
             jsonOutput = True
 
-    state = {
+    state = client.Data({
         'client': {
             'version': ondevice.getVersion()
         }
-    }
+    })
     
     try:
         s = client.getState(False)
-        s._data.update(state)
+        s._data.update(state._data)
         state = s
         
         rc = 1 # daemon is responding
