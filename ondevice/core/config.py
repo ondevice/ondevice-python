@@ -7,12 +7,29 @@ from ondevice.core import exception
 
 import os
 
-
-# default config directory:
-#   ~/.config/ondevice/
-# This works well on macOS and Linux
-# TODO add support for further OSs
 configDir = os.path.join(os.path.expanduser('~'), '.config/ondevice')
+""" configDir defaults to ~/.config/ondevice/,
+but if there's a /usr/share/ondevice/ondevice.sock file or ONDEVICE_USER
+environment variable, use /usr/share/ondevice/ instead
+"""
+
+
+runGlobal = False
+"""
+runGlobal (default: False)
+
+Specifies whether to run in user-local or system-wide mode.
+This has certain effects on where the config files are expected to be.
+
+Also, in global mode, getDeviceAuth() and getDeviceUser() simply return
+the contents of the ONDEVICE_USER and ONDEVICE_AUTH environment variables
+and setDeviceAuth()/setDeviceUser() raise a UsageException
+""" 
+
+if os.path.exists('/usr/share/ondevice/ondevice.sock') or 'ONDEVICE_USER' in os.environ:
+    runGlobal = True
+    configDir = '/usr/share/ondevice/'
+
 
 class Overrides:
     def __init__(self):
@@ -66,10 +83,9 @@ def getClientUser():
     return getValue('client', 'user')
 
 def getDeviceAuth():
-    envAuth = os.getenv("ONDEVICE_AUTH")
-    if envAuth != None:
-        # allow the credentials to be provided using environment variables
-        return envAuth
+    global runGlobal
+    if runGlobal:
+        return os.getenv("ONDEVICE_AUTH")
     else:
         return getValue('device', 'auth')
 
@@ -84,10 +100,9 @@ def getDeviceId():
     return getValue('device', 'dev-id')
 
 def getDeviceUser():
-    envUser = os.getenv("ONDEVICE_USER")
-    if envUser != None:
-        # allow the credentials to be provided using environment variables
-        return envUser
+    global runGlobal
+    if runGlobal:
+        return os.getenv("ONDEVICE_USER")
     else:
         return getValue('device', 'user')
 
@@ -102,10 +117,20 @@ def listKeys(section):
 
 def setClientAuth(auth): setValue('client', 'auth', auth)
 def setClientUser(name): setValue('client', 'user', name)
-def setDeviceAuth(auth): setValue('device', 'auth', auth)
 def setDeviceKey(key): setValue('device', 'key', key)
 def setDeviceId(slug): setValue('device', 'dev-id', slug)
-def setDeviceUser(name): setValue('device', 'user', name)
+
+def setDeviceAuth(auth):
+    global runGlobal
+    if not runGlobal:
+        setValue('device', 'auth', auth)
+    else: raise exception.UsageError("Can't set device auth in system-wide mode")
+
+def setDeviceUser(name):
+    global runGlobal
+    if not runGlobal:
+        setValue('device', 'user', name)
+    else: raise exception.UsageError("Can't set device auth in system-wide mode")
 
 def invalidateCache():
     """ Invalidate the in-memory cache of the configuration
