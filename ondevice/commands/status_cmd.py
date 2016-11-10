@@ -62,9 +62,12 @@ def run(*args):
     if jsonOutput:
         print(json.dumps(state._data, indent=4))
     else:
+        if 'version' in state:
+            print("Daemon:")
+            print("  version: {0}".format(state.version))
+            
         if 'device' in state:
-            print("Device:")
-            print("  ID: {0}".format(state.device.devId))
+            print("  deviceID: {0}".format(state.device.devId))
             print("")
         print("Client:")
         print("  version: {0}".format(ondevice.getVersion()))
