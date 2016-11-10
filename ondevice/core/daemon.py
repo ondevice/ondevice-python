@@ -123,9 +123,11 @@ def getDaemonPID():
 
 def runForever():
 	""" Run the device endpoint in a loop (until it gets aborted) """
-	lock = filelock.FileLock(config._getConfigPath('ondevice.lock'))
+	lockPath = config._getConfigPath('ondevice.lock')
+	lock = filelock.FileLock(lockPath)
 	try:
 		with lock.acquire(timeout=0):
+			os.chmod(lockPath, 0o644)
 			_runForever()
 	except filelock.Timeout:
 		logging.error("There's already another instance of `ondevice daemon` running!")
@@ -139,6 +141,7 @@ def _runForever():
 	pidfile = config._getConfigPath('ondevice.pid')
 	with open(pidfile, 'w') as f:
 		f.write('{0}\n'.format(os.getpid()))
+		os.chmod(pidfile, 0o644)
 
 	try:
 		while (True):

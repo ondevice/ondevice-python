@@ -170,4 +170,5 @@ def _saveConfig():
     tmpPath = os.path.join(os.path.dirname(cfgPath), '.{0}.tmp'.format(os.path.basename(cfgPath)))
     with open(tmpPath, 'w') as f:
         cfg.write(f)
+        os.chmod(tmpPath, 0o644)
     os.rename(tmpPath, cfgPath)

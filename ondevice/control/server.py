@@ -77,6 +77,9 @@ def start():
     cherrypy.tree.mount(ControlSocket(), '/')
     cherrypy.server.start()
 
+    if url.scheme == 'unix':
+        os.chmod(url.path, 0o660)
+
     _cherry = cherrypy.server
 
 def stop():
