@@ -20,6 +20,7 @@ usage = {
 
 from ondevice.core import daemon
 
+import errno
 import os
 import psutil
 import signal
@@ -38,9 +39,13 @@ def run():
                 # send a SIGTERM once a second
                 try:
                     os.kill(pid, signal.SIGTERM)
-                except ProcessLookupError as e:
-                    sys.stderr.write("\nondevice daemon isn't running (stale pid: {0})\n".format(pid))
-                    return 2
+                except OSError as e:
+                    if e.errno == errno.ESRCH:
+#                except ProcessLookupError as e: # only available in python 3
+                        sys.stderr.write("\nondevice daemon isn't running (stale pid: {0})\n".format(pid))
+                        return 2
+                    else:
+                        raise e
 
             if not psutil.pid_exists(pid):
                 sys.stderr.write("done\n")
