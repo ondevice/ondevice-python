@@ -2,6 +2,7 @@ cherrypy
 filelock
 psutil
 python-daemon
+requests=2.11.1
 requests-unixsocket
 six
 websocket-client >= 0.37.0
