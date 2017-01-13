@@ -9,7 +9,7 @@ import ssl
 import websocket
 
 BASE_URL=urllib.parse.urlparse('wss://api.ondevice.io/v1.1')
-#BASE_URL=urllib_parse.urlparse('ws://localhost:8080/v1.1')
+#BASE_URL=urllib.parse.urlparse('ws://localhost:8080/v1.1')
 #BASE_URL=urllib.parse.urlparse('wss://local.ondevice.io:8443/v1.1')
 class Message:
     def __init__(self, data):
@@ -91,6 +91,7 @@ class Socket:
         # Python2.6 fix (its ssl module won't try TLSv1 unless we explicitly tell it to)
         sslopt = {'ssl_version': self._getSslVersion()}
 
+        logging.debug("opening websocket connection to '{0}'".format(self._url))
         self._ws.run_forever(sslopt=sslopt)
 
     def send(self, data):
