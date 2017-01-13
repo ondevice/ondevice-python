@@ -52,6 +52,9 @@ def run(*args):
         print(fmt.format(id='ID',state='State', ip='IP', version='Version', name='Title'))
 
         for dev in resp['devices']:
-            if not 'name' in dev:
-                dev['name'] = ''
+            # add missing values
+            for key in ['name','ip','version']:
+                if not key in dev:
+                    dev[key] = ''
+            
             print(fmt.format(**dev))
