@@ -50,7 +50,7 @@ class TunnelSocket(sock.Socket):
         self.info.connId = state.add('tunnels', 'seq', 1)
 
         baseUrl = info.brokerUrl if hasattr(info, 'brokerUrl') else None
-        sock.Socket.__init__(self, endpoint, auth, baseurl=baseUrl, **params)
+        sock.Socket.__init__(self, endpoint, auth, baseUrl=baseUrl, **params)
 
         taskName = 'conn_{0}:ping'.format(info.connId)
         self._pingTask = thread.FixedDelayTask(self._ping, 60, name=taskName)
