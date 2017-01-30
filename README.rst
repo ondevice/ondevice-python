@@ -1,10 +1,15 @@
-ondevice.io client
-==================
 
-This is the official ondevice.io client.
+legacy ondevice.io python client
+================================
 
-``ondevice`` allows you to connect to all your devices from pretty much anywhere.
+This is the legacy/prototype ondevice.io client.
 
+It has been replaced by the new [golang-based ondevice client](https://github.com/ondevice/ondevice/)
+
+This repository will stay dormant for now until it will be reactivated as Python language bindings
+(for use in your own projects - i.e. without the commandline interface)
+
+Visit https://ondevice.io/ for information on how to get started with the new ondevice commandline client.
 
 Installation
 ------------
