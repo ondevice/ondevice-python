@@ -2,9 +2,9 @@
 legacy ondevice.io python client
 ================================
 
-This is the legacy/prototype ondevice.io client.
+**This is the legacy/prototype ondevice.io client.**
 
-It has been replaced by the new [golang-based ondevice client](https://github.com/ondevice/ondevice/)
+It has been replaced by the new `golang-based ondevice client <https://github.com/ondevice/ondevice/>`_
 
 This repository will stay dormant for now until it will be reactivated as Python language bindings
 (for use in your own projects - i.e. without the commandline interface)
